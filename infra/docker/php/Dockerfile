@@ -16,7 +16,7 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 RUN set -eux; \
   apt-get update; \
   apt-get install -y --no-install-recommends \
-    git unzip libicu-dev libzip-dev locales; \
+    git unzip libicu-dev libzip-dev locales netcat-traditional; \
   sed -i 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen; \
   locale-gen; update-locale LANG="$LANG" LC_ALL="$LC_ALL"; \
   mkdir -p /var/run/php-fpm; \
@@ -29,7 +29,12 @@ RUN set -eux; \
 
 COPY ./infra/docker/php/php-fpm.d/zzz-www.conf /usr/local/etc/php-fpm.d/zzz-www.conf
 COPY ./infra/docker/php/php.ini /usr/local/etc/php/php.ini
+COPY ./infra/docker/php/entrypoint.sh /usr/local/bin/entrypoint.sh
+
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 COPY --chown=www-data:www-data ./backend /work/backend
 
 WORKDIR /work/backend
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
