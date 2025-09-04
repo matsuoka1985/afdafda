@@ -8,23 +8,27 @@ echo "DB_DATABASE=$DB_DATABASE"
 echo "DB_USERNAME=$DB_USERNAME"
 echo "DB_SOCKET=$DB_SOCKET"
 
-# 1. DNS Resolution
-echo "1. Testing DNS resolution for $DB_HOST"
-if getent hosts "$DB_HOST"; then
-    echo "✓ DNS resolution successful"
+# Skip DB checks in CI environment
+if [ "${RUN_MIGRATIONS:-true}" = "false" ]; then
+    echo "Skipping DB checks in CI environment"
 else
-    echo "✗ DNS resolution failed"
-fi
+    # 1. DNS Resolution
+    echo "1. Testing DNS resolution for $DB_HOST"
+    if getent hosts "$DB_HOST"; then
+        echo "✓ DNS resolution successful"
+    else
+        echo "✗ DNS resolution failed"
+        exit 1
+    fi
 
-# 2. TCP Connection
-echo "2. Testing TCP connection to $DB_HOST:$DB_PORT"
-if nc -z -w10 "$DB_HOST" "$DB_PORT" 2>/dev/null; then
-    echo "✓ TCP connection successful to $DB_HOST:$DB_PORT"
-else
-    echo "✗ TCP connection failed to $DB_HOST:$DB_PORT"
-    echo "Testing with timeout..."
-    timeout 10 bash -c "echo > /dev/tcp/$DB_HOST/$DB_PORT" 2>/dev/null && echo "TCP OK via /dev/tcp" || echo "TCP failed completely"
-    exit 1
+    # 2. TCP Connection
+    echo "2. Testing TCP connection to $DB_HOST:$DB_PORT"
+    if nc -z -w10 "$DB_HOST" "$DB_PORT" 2>/dev/null; then
+        echo "✓ TCP connection successful to $DB_HOST:$DB_PORT"
+    else
+        echo "✗ TCP connection failed to $DB_HOST:$DB_PORT"
+        exit 1
+    fi
 fi
 
 # 3. Laravel Config Test
@@ -69,7 +73,7 @@ try {
     }
 }"
 
-# Run migrations if needed
+# Run migrations if needed (skip in CI)
 if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
     echo "6. Running database migrations..."
     php artisan migrate --force --no-interaction || {
