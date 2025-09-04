@@ -51,7 +51,7 @@
         },
         {
           "name": "DB_HOST",
-          "value": "{{ tfstate `module.db_foobar.db_instance_this_address` }}"
+          "value": "{{ tfstate `data.terraform_remote_state.db_foobar.outputs.db_instance_this_address` }}"
         },
         {
           "name": "DB_PORT",
