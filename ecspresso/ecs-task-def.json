@@ -44,7 +44,28 @@
     {
       "cpu": 0,
       "command": ["sh", "scripts/deploy.sh"],
-      "environment": [],
+      "environment": [
+        {
+          "name": "DB_CONNECTION",
+          "value": "mysql"
+        },
+        {
+          "name": "DB_HOST",
+          "value": "{{ tfstate `module.db_foobar.db_instance_this_endpoint` }}"
+        },
+        {
+          "name": "DB_PORT",
+          "value": "3306"
+        },
+        {
+          "name": "DB_DATABASE",
+          "value": "foobar"
+        },
+        {
+          "name": "DB_USERNAME",
+          "value": "foobar"
+        }
+      ],
       "environmentFiles": [
         {
           "type": "s3",
