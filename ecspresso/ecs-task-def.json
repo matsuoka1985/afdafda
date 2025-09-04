@@ -59,11 +59,11 @@
         },
         {
           "name": "DB_DATABASE",
-          "value": "foobar"
+          "value": "{{ must_env \`DB_DATABASE\` }}"
         },
         {
           "name": "DB_USERNAME",
-          "value": "foobar"
+          "value": "{{ must_env \`DB_USERNAME\` }}"
         }
       ],
       "environmentFiles": [
