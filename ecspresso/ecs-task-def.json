@@ -51,7 +51,7 @@
         },
         {
           "name": "DB_HOST",
-          "value": "{{ tfstate `module.db_foobar.db_instance_this_endpoint` }}"
+          "value": "{{ tfstate `module.db_foobar.db_instance_this_address` }}"
         },
         {
           "name": "DB_PORT",
