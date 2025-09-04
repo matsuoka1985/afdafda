@@ -37,4 +37,4 @@ COPY --chown=www-data:www-data ./backend /work/backend
 
 WORKDIR /work/backend
 
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["php-fpm"]
