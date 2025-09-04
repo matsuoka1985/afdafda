@@ -1,12 +1,20 @@
 #!/bin/bash
 set -e
 
-echo "=== Laravel DB Connection Debug ==="
-echo "DB_HOST=$DB_HOST"
-echo "DB_PORT=$DB_PORT"
-echo "DB_DATABASE=$DB_DATABASE"
-echo "DB_USERNAME=$DB_USERNAME"
-echo "DB_SOCKET=$DB_SOCKET"
+echo "=== Laravel Startup ==="
+
+# Check if running in CI environment
+if [ "${CI:-false}" = "true" ]; then
+    echo "Running in CI environment, skipping all DB checks"
+    exec php-fpm -F
+fi
+
+echo "Running in production environment"
+echo "DB_HOST=${DB_HOST:-unset}"
+echo "DB_PORT=${DB_PORT:-unset}"
+echo "DB_DATABASE=${DB_DATABASE:-unset}"
+echo "DB_USERNAME=${DB_USERNAME:-unset}"
+echo "DB_SOCKET=${DB_SOCKET:-unset}"
 
 # Skip DB checks in CI environment  
 if [ "${CI:-false}" = "true" ] || [ "${RUN_MIGRATIONS:-true}" = "false" ]; then
