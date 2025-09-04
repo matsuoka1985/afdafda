@@ -18,20 +18,14 @@ fi
 
 # 2. TCP Connection
 echo "2. Testing TCP connection to $DB_HOST:$DB_PORT"
-timeout=60
-count=0
-
-while ! nc -z "$DB_HOST" "$DB_PORT" 2>/dev/null; do
-    if [ $count -ge $timeout ]; then
-        echo "✗ TCP connection timeout to $DB_HOST:$DB_PORT"
-        exit 1
-    fi
-    echo "Waiting for $DB_HOST:$DB_PORT... ($count/$timeout)"
-    sleep 2
-    count=$((count + 2))
-done
-
-echo "✓ TCP connection successful to $DB_HOST:$DB_PORT"
+if nc -z -w10 "$DB_HOST" "$DB_PORT" 2>/dev/null; then
+    echo "✓ TCP connection successful to $DB_HOST:$DB_PORT"
+else
+    echo "✗ TCP connection failed to $DB_HOST:$DB_PORT"
+    echo "Testing with timeout..."
+    timeout 10 bash -c "echo > /dev/tcp/$DB_HOST/$DB_PORT" 2>/dev/null && echo "TCP OK via /dev/tcp" || echo "TCP failed completely"
+    exit 1
+fi
 
 # 3. Laravel Config Test
 echo "3. Testing Laravel database config"
