@@ -35,7 +35,6 @@ jobs:
           echo "DB_HOST=example-prod-foobar.cwfzgxrqn8c4.ap-northeast-1.rds.amazonaws.com" >> $GITHUB_ENV
           echo "DB_DATABASE=foobar" >> $GITHUB_ENV
           echo "DB_USERNAME=foobar" >> $GITHUB_ENV
-          echo "DB_HOST=example-prod-foobar.cwfzgxrqn8c4.ap-northeast-1.rds.amazonaws.com" >> $GITHUB_ENV
 
       - uses: actions/checkout@v2
 
