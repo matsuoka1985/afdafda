@@ -119,7 +119,7 @@ jobs:
           ecspresso run --config config_$ENV_NAME.yaml \
             --latest-task-definition \
             --watch-container=php \
-            --overrides='{"containerOverrides":[{"name":"nginx", "command":["nginx", "-v"]},{"name":"php", "command":["php", "artisan", "migrate", "--force"]}]}'
+            --overrides='{"containerOverrides":[{"name":"nginx", "command":["nginx", "-v"]},{"name":"php", "command":["sh", "scripts/migrate.sh"]}]}'
         working-directory: ./ecspresso
 
       - name: Deploy to ecs

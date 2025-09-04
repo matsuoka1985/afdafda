@@ -2,7 +2,7 @@
 
 set -eu
 
-echo "=== ECS Production Startup ==="
+echo "=== Database Migration Script ==="
 echo "DB_HOST=$DB_HOST"
 echo "DB_PORT=$DB_PORT"
 echo "DB_DATABASE=$DB_DATABASE"
@@ -25,8 +25,17 @@ else
     exit 1
 fi
 
-echo "3. Clearing config cache"
-php artisan config:clear
+echo "3. Testing MySQL authentication"
+php artisan tinker --execute="
+try {
+    \DB::connection()->getPdo();
+    echo '✓ MySQL authentication successful' . PHP_EOL;
+} catch (Exception \$e) {
+    echo '✗ MySQL authentication failed: ' . \$e->getMessage() . PHP_EOL;
+    exit(1);
+}"
 
-echo "4. Starting PHP-FPM"
-php-fpm
+echo "4. Running migrations"
+php artisan migrate --force --no-interaction
+
+echo "✓ Migration completed successfully"
