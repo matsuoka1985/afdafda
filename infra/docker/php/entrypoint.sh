@@ -31,47 +31,52 @@ else
     fi
 fi
 
-# 3. Laravel Config Test
-echo "3. Testing Laravel database config"
-php artisan config:clear --no-interaction
-php artisan tinker --execute="
-try {
-    echo '✓ Laravel config loaded' . PHP_EOL;
-    \$config = config('database.connections.mysql');
-    echo 'Host: ' . \$config['host'] . PHP_EOL;
-    echo 'Database: ' . \$config['database'] . PHP_EOL;
-    echo 'Socket: ' . (\$config['unix_socket'] ?: 'empty') . PHP_EOL;
-} catch (Exception \$e) {
-    echo '✗ Laravel config error: ' . \$e->getMessage() . PHP_EOL;
-}"
-
-# 4. MySQL Connection Test
-echo "4. Testing MySQL authentication"
-php artisan tinker --execute="
-try {
-    \DB::connection()->getPdo();
-    echo '✓ MySQL authentication successful' . PHP_EOL;
-    echo 'Server version: ' . \DB::select('SELECT VERSION() as version')[0]->version . PHP_EOL;
-} catch (Exception \$e) {
-    echo '✗ MySQL authentication failed: ' . \$e->getMessage() . PHP_EOL;
-}"
-
-# 5. Database Existence Test
-echo "5. Testing database existence"
-php artisan tinker --execute="
-try {
-    \DB::statement('USE ' . config('database.connections.mysql.database'));
-    echo '✓ Database exists and accessible' . PHP_EOL;
-} catch (Exception \$e) {
-    echo '✗ Database access failed: ' . \$e->getMessage() . PHP_EOL;
-    echo 'Trying to list databases...' . PHP_EOL;
+# Laravel config and DB tests (only in production)
+if [ "${CI:-false}" = "true" ] || [ "${RUN_MIGRATIONS:-true}" = "false" ]; then
+    echo "Skipping Laravel DB tests in CI environment"
+else
+    # 3. Laravel Config Test
+    echo "3. Testing Laravel database config"
+    php artisan config:clear --no-interaction
+    php artisan tinker --execute="
     try {
-        \$dbs = \DB::select('SHOW DATABASES');
-        echo 'Available databases: ' . implode(', ', array_column(\$dbs, 'Database')) . PHP_EOL;
-    } catch (Exception \$e2) {
-        echo 'Cannot list databases: ' . \$e2->getMessage() . PHP_EOL;
-    }
-}"
+        echo '✓ Laravel config loaded' . PHP_EOL;
+        \$config = config('database.connections.mysql');
+        echo 'Host: ' . \$config['host'] . PHP_EOL;
+        echo 'Database: ' . \$config['database'] . PHP_EOL;
+        echo 'Socket: ' . (\$config['unix_socket'] ?: 'empty') . PHP_EOL;
+    } catch (Exception \$e) {
+        echo '✗ Laravel config error: ' . \$e->getMessage() . PHP_EOL;
+    }"
+
+    # 4. MySQL Connection Test
+    echo "4. Testing MySQL authentication"
+    php artisan tinker --execute="
+    try {
+        \DB::connection()->getPdo();
+        echo '✓ MySQL authentication successful' . PHP_EOL;
+        echo 'Server version: ' . \DB::select('SELECT VERSION() as version')[0]->version . PHP_EOL;
+    } catch (Exception \$e) {
+        echo '✗ MySQL authentication failed: ' . \$e->getMessage() . PHP_EOL;
+    }"
+
+    # 5. Database Existence Test
+    echo "5. Testing database existence"
+    php artisan tinker --execute="
+    try {
+        \DB::statement('USE ' . config('database.connections.mysql.database'));
+        echo '✓ Database exists and accessible' . PHP_EOL;
+    } catch (Exception \$e) {
+        echo '✗ Database access failed: ' . \$e->getMessage() . PHP_EOL;
+        echo 'Trying to list databases...' . PHP_EOL;
+        try {
+            \$dbs = \DB::select('SHOW DATABASES');
+            echo 'Available databases: ' . implode(', ', array_column(\$dbs, 'Database')) . PHP_EOL;
+        } catch (Exception \$e2) {
+            echo 'Cannot list databases: ' . \$e2->getMessage() . PHP_EOL;
+        }
+    }"
+fi
 
 # Run migrations if needed (skip in CI)
 if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
