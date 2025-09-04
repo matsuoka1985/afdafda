@@ -8,8 +8,8 @@ echo "DB_DATABASE=$DB_DATABASE"
 echo "DB_USERNAME=$DB_USERNAME"
 echo "DB_SOCKET=$DB_SOCKET"
 
-# Skip DB checks in CI environment
-if [ "${RUN_MIGRATIONS:-true}" = "false" ]; then
+# Skip DB checks in CI environment  
+if [ "${CI:-false}" = "true" ] || [ "${RUN_MIGRATIONS:-true}" = "false" ]; then
     echo "Skipping DB checks in CI environment"
 else
     # 1. DNS Resolution
