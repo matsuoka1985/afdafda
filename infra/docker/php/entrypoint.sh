@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "=== Laravel Startup ==="
+echo "=== ECS Production Startup ==="
 
 # Check if running in CI environment
 if [ "${CI:-false}" = "true" ]; then
@@ -15,6 +15,8 @@ echo "DB_PORT=${DB_PORT:-unset}"
 echo "DB_DATABASE=${DB_DATABASE:-unset}"
 echo "DB_USERNAME=${DB_USERNAME:-unset}"
 echo "DB_SOCKET=${DB_SOCKET:-unset}"
+echo "REDIS_HOST=${REDIS_HOST:-unset}"
+echo "SESSION_DRIVER=${SESSION_DRIVER:-unset}"
 
 # Skip DB checks in CI environment  
 if [ "${CI:-false}" = "true" ] || [ "${RUN_MIGRATIONS:-true}" = "false" ]; then
@@ -84,6 +86,24 @@ else
             echo 'Cannot list databases: ' . \$e2->getMessage() . PHP_EOL;
         }
     }"
+
+    # 7. Redis Connection Test
+    echo "7. Testing Redis connection"
+    if [ "${SESSION_DRIVER:-}" = "redis" ] && [ "${REDIS_HOST:-}" != "unset" ]; then
+        php artisan tinker --execute="
+        try {
+            \$redis = new Redis();
+            \$redis->connect('${REDIS_HOST}', ${REDIS_PORT:-6379});
+            \$redis->set('startup_test', 'success_' . time());
+            \$result = \$redis->get('startup_test');
+            echo '✓ Redis connection successful: ' . \$result . PHP_EOL;
+            \$redis->del('startup_test');
+        } catch (Exception \$e) {
+            echo '✗ Redis connection failed: ' . \$e->getMessage() . PHP_EOL;
+        }"
+    else
+        echo "Skipping Redis test (SESSION_DRIVER=${SESSION_DRIVER:-unset})"
+    fi
 fi
 
 # Run migrations if needed (skip in CI)
