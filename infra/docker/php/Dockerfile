@@ -23,7 +23,7 @@ WORKDIR /var/www
 FROM base AS development
 
 # ---------- 開発用ツール ----------  
-RUN apk add --no-cache bash make nodejs=~20 npm
+RUN apk add --no-cache bash make nodejs npm
 
 # 開発用: ボリュームマウントでコードを注入するため、COPYしない
 
@@ -32,8 +32,8 @@ RUN apk add --no-cache bash make nodejs=~20 npm
 # =============================================================================
 FROM base AS production
 
-# Node.js をインストール（Vite ビルド用、開発環境と同じバージョン）
-RUN apk add --no-cache nodejs=~20 npm
+# Node.js をインストール（Vite ビルド用）
+RUN apk add --no-cache nodejs npm
 
 # backendディレクトリをコピー
 COPY backend/ /var/www/
