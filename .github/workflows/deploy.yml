@@ -124,6 +124,12 @@ jobs:
         working-directory: ./ecspresso
 
         
+      - name: Check service diff
+        run: ecspresso diff --config config_$ENV_NAME.yaml --latest-task-definition
+        working-directory: ./ecspresso
+
       - name: Deploy to ecs
-        run: ecspresso deploy --config config_$ENV_NAME.yaml --latest-task-definition --debug
+        run: |
+          set -x
+          ecspresso deploy --config config_$ENV_NAME.yaml --latest-task-definition --debug --force-new-deployment --verbose
         working-directory: ./ecspresso
