@@ -58,7 +58,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: '20'
 
       - name: Cache npm
         id: cache-npm-ci
@@ -71,7 +71,7 @@ jobs:
         run: |
           cd backend
           npm ci
-          npm run prod
+          npm run build
 
       - uses: aws-actions/amazon-ecr-login@v1
         id: amazon-ecr-login
