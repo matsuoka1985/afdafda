@@ -111,7 +111,11 @@ jobs:
           version: v1.5.3
 
       - name: Register task definition
-        run: ecspresso register --config config_$ENV_NAME.yaml --debug
+        run: |
+          ecspresso register --config config_$ENV_NAME.yaml --debug
+          # Check what revision was created
+          LATEST_REVISION=$(aws ecs describe-task-definition --task-definition example-prod-foobar --query 'taskDefinition.revision' --output text)
+          echo "Registered task definition revision: $LATEST_REVISION"
         working-directory: ./ecspresso
 
       - name: Migrate database
@@ -131,5 +135,10 @@ jobs:
       - name: Deploy to ecs
         run: |
           set -x
-          ecspresso deploy --config config_$ENV_NAME.yaml --latest-task-definition --debug --force-new-deployment
+          # Get the latest task definition revision
+          LATEST_REVISION=$(aws ecs describe-task-definition --task-definition example-prod-foobar --query 'taskDefinition.revision' --output text)
+          echo "Latest task definition revision: $LATEST_REVISION"
+          
+          # Deploy with explicit task definition
+          ecspresso deploy --config config_$ENV_NAME.yaml --task-definition=example-prod-foobar:$LATEST_REVISION --debug --force-new-deployment
         working-directory: ./ecspresso
