@@ -135,6 +135,6 @@ jobs:
       - name: Deploy to ecs
         run: |
           set -x
-          # Simply deploy with force new deployment - ecspresso should pick up the latest registered task definition
-          ecspresso deploy --config config_$ENV_NAME.yaml --debug --force-new-deployment --skip-task-definition
+          # Deploy with the new task definition that was registered
+          ecspresso deploy --config config_$ENV_NAME.yaml --debug --force-new-deployment
         working-directory: ./ecspresso
