@@ -1,28 +1,31 @@
-FROM node:16-alpine as node
-FROM nginx:1.20-alpine
-LABEL maintainer="ucan-lab <yes@u-can.pro>"
-SHELL ["/bin/ash", "-oeux", "pipefail", "-c"]
+# =============================================================================
+# ベースステージ - 共通の環境設定
+# =============================================================================
+FROM nginx:1.21.1-alpine AS base
 
-ENV TZ=UTC
+# curlをヘルスチェック用にインストール
+RUN apk add --no-cache curl
 
-RUN apk update && \
-  apk add --update --no-cache --virtual=.build-dependencies g++
+# =============================================================================
+# 開発ステージ - docker-compose用
+# =============================================================================
+FROM base AS development
 
-# node command
-COPY --from=node /usr/local/bin /usr/local/bin
-# npm command
-COPY --from=node /usr/local/lib /usr/local/lib
-# yarn command
-COPY --from=node /opt /opt
-# nginx config file will be output to /etc/nginx/conf.d/ by envsubst
-COPY ./infra/docker/nginx/default.conf /etc/nginx/templates/default.conf.template
-COPY ./infra/docker/nginx/nginx.conf /etc/nginx/nginx.conf
-COPY ./infra/docker/nginx/entrypoint.sh /usr/local/bin/entrypoint.sh
+# 開発環境用のnginx設定ファイルをコピー
+COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 
-COPY ./backend/public /work/backend/public
+EXPOSE 80
 
-WORKDIR /work/backend
+# =============================================================================
+# 本番ステージ - ECS用
+# =============================================================================
+FROM base AS production
 
+# ECS用のnginx設定テンプレートをコピー
+COPY infra/docker/nginx/default-ecs.conf.template /etc/nginx/templates/default.conf.template
+COPY infra/docker/nginx/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
+
+EXPOSE 80
 
 CMD ["/usr/local/bin/entrypoint.sh"]

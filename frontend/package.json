@@ -1,0 +1,33 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "test": "vitest",
+    "test:watch": "vitest --watch"
+  },
+  "dependencies": {
+    "@vee-validate/yup": "^4.15.1",
+    "firebase": "^12.0.0",
+    "firebase-admin": "^13.4.0",
+    "nuxt": "^3.17.5",
+    "vee-validate": "^4.15.1",
+    "vue": "^3.5.17",
+    "vue-router": "^4.5.1",
+    "yup": "^1.6.1"
+  },
+  "devDependencies": {
+    "@nuxt/test-utils": "^3.19.2",
+    "@tailwindcss/forms": "^0.5.10",
+    "@vue/test-utils": "^2.4.6",
+    "autoprefixer": "^10.4.21",
+    "happy-dom": "^18.0.1",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
+    "vitest": "^3.2.4"
+  }
+}
