@@ -6,6 +6,8 @@ echo "=== ECS Production Startup ==="
 echo "DB_HOST=$DB_HOST"
 echo "DB_PORT=$DB_PORT"
 echo "DB_DATABASE=$DB_DATABASE"
+echo "REDIS_HOST=${REDIS_HOST:-unset}"
+echo "SESSION_DRIVER=${SESSION_DRIVER:-unset}"
 
 # DNS Resolution Test
 echo "1. Testing DNS resolution for $DB_HOST"
@@ -28,5 +30,24 @@ fi
 echo "3. Clearing config cache"
 php artisan config:clear
 
-echo "4. Starting PHP-FPM"
+# Redis Connection Test
+echo "4. Testing Redis connection"
+if [ "${SESSION_DRIVER:-}" = "redis" ] && [ "${REDIS_HOST:-}" != "unset" ]; then
+    php -r "
+    try {
+        \$redis = new Redis();
+        \$redis->connect('${REDIS_HOST}', ${REDIS_PORT:-6379});
+        \$redis->set('startup_test', 'success_' . time());
+        \$result = \$redis->get('startup_test');
+        echo '✓ Redis connection successful: ' . \$result . PHP_EOL;
+        \$redis->del('startup_test');
+    } catch (Exception \$e) {
+        echo '✗ Redis connection failed: ' . \$e->getMessage() . PHP_EOL;
+    }
+    "
+else
+    echo "Skipping Redis test (SESSION_DRIVER=${SESSION_DRIVER:-unset})"
+fi
+
+echo "5. Starting PHP-FPM"
 php-fpm
