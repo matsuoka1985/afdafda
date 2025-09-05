@@ -31,10 +31,13 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: |
           echo "ENV_NAME=prod" >> $GITHUB_ENV
-          echo "VPC_CIDR=172.31.0.0/16" >> $GITHUB_ENV
           echo "DB_HOST=example-prod-foobar.cwfzgxrqn8c4.ap-northeast-1.rds.amazonaws.com" >> $GITHUB_ENV
           echo "DB_DATABASE=foobar" >> $GITHUB_ENV
           echo "DB_USERNAME=foobar" >> $GITHUB_ENV
+          # Get VPC CIDR dynamically
+          VPC_CIDR=$(aws ec2 describe-vpcs --filters "Name=tag:Name,Values=example-prod-main" --query 'Vpcs[0].CidrBlock' --output text)
+          echo "VPC_CIDR=$VPC_CIDR" >> $GITHUB_ENV
+          echo "Detected VPC CIDR: $VPC_CIDR"
 
       - uses: actions/checkout@v2
 
