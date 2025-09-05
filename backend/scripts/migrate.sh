@@ -13,13 +13,10 @@ echo "DB_USERNAME=${DB_USERNAME:-unset}"
 echo "Clearing Laravel config cache..."
 php artisan config:clear
 
-# Run migrations
-echo "Running database migrations..."
-# Skip already existing tables and continue with new ones
-php artisan migrate --force || {
-    echo "Some migrations failed, but continuing..."
-    echo "This is expected when tables already exist from previous deploys"
-}
+# Run fresh migrations (drops all tables and recreates)
+echo "Running fresh database migrations..."
+echo "WARNING: This will drop all existing tables and data!"
+php artisan migrate:fresh --force
 
 # Run seeders if specified
 if [ "${RUN_SEEDERS:-false}" = "true" ]; then
