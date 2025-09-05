@@ -135,10 +135,6 @@ jobs:
       - name: Deploy to ecs
         run: |
           set -x
-          # Get the latest task definition revision
-          LATEST_REVISION=$(aws ecs describe-task-definition --task-definition example-prod-foobar --query 'taskDefinition.revision' --output text)
-          echo "Latest task definition revision: $LATEST_REVISION"
-          
-          # Deploy with explicit task definition
-          ecspresso deploy --config config_$ENV_NAME.yaml --task-definition=example-prod-foobar:$LATEST_REVISION --debug --force-new-deployment
+          # Simply deploy with force new deployment - ecspresso should pick up the latest registered task definition
+          ecspresso deploy --config config_$ENV_NAME.yaml --debug --force-new-deployment --skip-task-definition
         working-directory: ./ecspresso
