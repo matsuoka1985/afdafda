@@ -135,6 +135,18 @@ jobs:
       - name: Deploy to ecs
         run: |
           set -x
-          # Deploy with the new task definition that was registered
-          ecspresso deploy --config config_$ENV_NAME.yaml --debug --force-new-deployment
+          # Try ecspresso deploy first
+          if ! ecspresso deploy --config config_$ENV_NAME.yaml --debug --force-new-deployment --update-service; then
+            echo "ecspresso deploy failed, trying AWS CLI fallback..."
+            # Get the latest task definition revision
+            LATEST_REVISION=$(aws ecs describe-task-definition --task-definition example-prod-foobar --query 'taskDefinition.revision' --output text)
+            echo "Using task definition revision: $LATEST_REVISION"
+            
+            # Force service update using AWS CLI
+            aws ecs update-service \
+              --cluster example-prod-foobar \
+              --service example-prod-foobar \
+              --task-definition example-prod-foobar:$LATEST_REVISION \
+              --force-new-deployment
+          fi
         working-directory: ./ecspresso
