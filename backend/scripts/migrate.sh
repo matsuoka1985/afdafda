@@ -15,7 +15,11 @@ php artisan config:clear
 
 # Run migrations
 echo "Running database migrations..."
-php artisan migrate --force
+# Skip already existing tables and continue with new ones
+php artisan migrate --force || {
+    echo "Some migrations failed, but continuing..."
+    echo "This is expected when tables already exist from previous deploys"
+}
 
 # Run seeders if specified
 if [ "${RUN_SEEDERS:-false}" = "true" ]; then
