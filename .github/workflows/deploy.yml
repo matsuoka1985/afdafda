@@ -111,7 +111,7 @@ jobs:
           version: v1.5.3
 
       - name: Register task definition
-        run: ecspresso register --config config_$ENV_NAME.yaml
+        run: ecspresso register --config config_$ENV_NAME.yaml --debug
         working-directory: ./ecspresso
 
       - name: Migrate database
@@ -119,10 +119,11 @@ jobs:
           ecspresso run --config config_$ENV_NAME.yaml \
             --latest-task-definition \
             --watch-container=php \
-            --overrides='{"containerOverrides":[{"name":"nginx", "command":["nginx", "-v"]},{"name":"php", "command":["sh", "scripts/migrate.sh"]}]}'
+            --overrides='{"containerOverrides":[{"name":"nginx", "command":["nginx", "-v"]},{"name":"php", "command":["sh", "scripts/migrate.sh"]}]}' \
+            --debug
         working-directory: ./ecspresso
 
         
       - name: Deploy to ecs
-        run: ecspresso deploy --config config_$ENV_NAME.yaml --latest-task-definition
+        run: ecspresso deploy --config config_$ENV_NAME.yaml --latest-task-definition --debug
         working-directory: ./ecspresso
