@@ -17,6 +17,7 @@ echo "DB_USERNAME=${DB_USERNAME:-unset}"
 echo "DB_SOCKET=${DB_SOCKET:-unset}"
 echo "REDIS_HOST=${REDIS_HOST:-unset}"
 echo "SESSION_DRIVER=${SESSION_DRIVER:-unset}"
+echo "RUN_MIGRATIONS=${RUN_MIGRATIONS:-true}"
 
 # Skip DB checks in CI environment  
 if [ "${CI:-false}" = "true" ] || [ "${RUN_MIGRATIONS:-true}" = "false" ]; then
