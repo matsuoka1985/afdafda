@@ -68,6 +68,26 @@
         {
           "name": "DB_SOCKET",
           "value": ""
+        },
+        {
+          "name": "SESSION_DRIVER",
+          "value": "redis"
+        },
+        {
+          "name": "REDIS_HOST",
+          "value": "cache.smatsuoka.click"
+        },
+        {
+          "name": "REDIS_PORT", 
+          "value": "6379"
+        },
+        {
+          "name": "REDIS_PASSWORD",
+          "value": "null"
+        },
+        {
+          "name": "SESSION_LIFETIME",
+          "value": "120"
         }
       ],
       "environmentFiles": [
