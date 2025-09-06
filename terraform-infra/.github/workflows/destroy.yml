@@ -1,0 +1,196 @@
+name: Destroy Infrastructure
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_destroy:
+        description: 'Type "DESTROY" to confirm deletion of all resources'
+        required: true
+        type: string
+      environment:
+        description: 'Environment to destroy'
+        required: true
+        default: 'prod'
+        type: choice
+        options:
+          - prod
+
+env:
+  AWS_REGION: ap-northeast-1
+  TF_VERSION: 1.0.0
+
+jobs:
+  # 安全確認
+  confirm:
+    name: Confirm Destruction
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate confirmation
+        run: |
+          if [ "${{ github.event.inputs.confirm_destroy }}" != "DESTROY" ]; then
+            echo "❌ Confirmation failed. You must type 'DESTROY' to proceed."
+            exit 1
+          fi
+          echo "✅ Destruction confirmed for ${{ github.event.inputs.environment }} environment"
+
+  # レイヤー1: CI/CD・アプリケーション（逆順）
+  application:
+    name: Destroy Application Layer
+    runs-on: ubuntu-latest
+    needs: confirm
+    strategy:
+      matrix:
+        layer:
+          - { name: "cicd", path: "envs/prod/cicd/app_foobar" }
+          - { name: "application", path: "envs/prod/app/foobar" }
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.TERRAFORM_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.TERRAFORM_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.TERRAFORM_AWS_ASSUME_ROLE_ARN }}
+          role-duration-seconds: 3600
+
+      - uses: actions/checkout@v2
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Destroy - ${{ matrix.layer.name }}
+        run: |
+          terraform init
+          terraform destroy -auto-approve
+        working-directory: ${{ matrix.layer.path }}
+
+  # レイヤー2: ルーティング
+  routing:
+    name: Destroy Routing Layer
+    runs-on: ubuntu-latest
+    needs: application
+    strategy:
+      matrix:
+        layer:
+          - { name: "routing-link", path: "envs/prod/routing/appfoobar_link" }
+          - { name: "routing-internal", path: "envs/prod/routing/foobar_internal" }
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.TERRAFORM_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.TERRAFORM_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.TERRAFORM_AWS_ASSUME_ROLE_ARN }}
+          role-duration-seconds: 3600
+
+      - uses: actions/checkout@v2
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Destroy - ${{ matrix.layer.name }}
+        run: |
+          terraform init
+          terraform destroy -auto-approve
+        working-directory: ${{ matrix.layer.path }}
+
+  # レイヤー3: データベース・キャッシュ
+  data:
+    name: Destroy Data Layer
+    runs-on: ubuntu-latest
+    needs: routing
+    strategy:
+      matrix:
+        layer:
+          - { name: "cache", path: "envs/prod/cache/foobar" }
+          - { name: "database", path: "envs/prod/db/foobar" }
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.TERRAFORM_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.TERRAFORM_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.TERRAFORM_AWS_ASSUME_ROLE_ARN }}
+          role-duration-seconds: 3600
+
+      - uses: actions/checkout@v2
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Destroy - ${{ matrix.layer.name }}
+        run: |
+          terraform init
+          terraform destroy -auto-approve
+        working-directory: ${{ matrix.layer.path }}
+
+  # レイヤー4: ログ
+  logs:
+    name: Destroy Logs Layer
+    runs-on: ubuntu-latest
+    needs: data
+    strategy:
+      matrix:
+        layer:
+          - { name: "log-db", path: "envs/prod/log/db_foobar" }
+          - { name: "log-app", path: "envs/prod/log/app_foobar" }
+          - { name: "log-alb", path: "envs/prod/log/alb" }
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.TERRAFORM_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.TERRAFORM_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.TERRAFORM_AWS_ASSUME_ROLE_ARN }}
+          role-duration-seconds: 3600
+
+      - uses: actions/checkout@v2
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Destroy - ${{ matrix.layer.name }}
+        run: |
+          terraform init
+          terraform destroy -auto-approve
+        working-directory: ${{ matrix.layer.path }}
+
+  # レイヤー5: ネットワーク（最後）
+  network:
+    name: Destroy Network Layer
+    runs-on: ubuntu-latest
+    needs: logs
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.TERRAFORM_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.TERRAFORM_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.TERRAFORM_AWS_ASSUME_ROLE_ARN }}
+          role-duration-seconds: 3600
+
+      - uses: actions/checkout@v2
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Destroy - Network
+        run: |
+          terraform init
+          terraform destroy -auto-approve
+        working-directory: envs/prod/network/main
+
+      - name: Cleanup Summary
+        run: |
+          echo "🧹 All infrastructure resources have been destroyed"
+          echo "Environment: ${{ github.event.inputs.environment }}"
+          echo "Timestamp: $(date)"

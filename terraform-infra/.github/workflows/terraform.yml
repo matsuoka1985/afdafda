@@ -1,0 +1,180 @@
+name: Terraform Infrastructure
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'envs/prod/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'envs/prod/**'
+
+env:
+  AWS_REGION: ap-northeast-1
+  TF_VERSION: 1.0.0
+
+jobs:
+  # レイヤー1: ネットワーク基盤
+  network:
+    name: Deploy Network
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.TERRAFORM_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.TERRAFORM_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.TERRAFORM_AWS_ASSUME_ROLE_ARN }}
+          role-duration-seconds: 3600
+
+      - uses: actions/checkout@v2
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init & Apply - Network
+        run: |
+          terraform init
+          terraform plan
+          terraform apply -auto-approve
+        working-directory: envs/prod/network/main
+
+  # レイヤー2: ログ（並行実行可能）
+  logs:
+    name: Deploy Logs
+    runs-on: ubuntu-latest
+    needs: network
+    strategy:
+      matrix:
+        layer:
+          - { name: "log-alb", path: "envs/prod/log/alb" }
+          - { name: "log-app", path: "envs/prod/log/app_foobar" }
+          - { name: "log-db", path: "envs/prod/log/db_foobar" }
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.TERRAFORM_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.TERRAFORM_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.TERRAFORM_AWS_ASSUME_ROLE_ARN }}
+          role-duration-seconds: 3600
+
+      - uses: actions/checkout@v2
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init & Apply - ${{ matrix.layer.name }}
+        run: |
+          terraform init
+          terraform plan
+          terraform apply -auto-approve
+        working-directory: ${{ matrix.layer.path }}
+
+  # レイヤー3: データベース・キャッシュ（並行実行可能）
+  data:
+    name: Deploy Data Layer
+    runs-on: ubuntu-latest
+    needs: logs
+    strategy:
+      matrix:
+        layer:
+          - { name: "database", path: "envs/prod/db/foobar" }
+          - { name: "cache", path: "envs/prod/cache/foobar" }
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.TERRAFORM_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.TERRAFORM_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.TERRAFORM_AWS_ASSUME_ROLE_ARN }}
+          role-duration-seconds: 3600
+
+      - uses: actions/checkout@v2
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init & Apply - ${{ matrix.layer.name }}
+        run: |
+          terraform init
+          terraform plan
+          terraform apply -auto-approve
+        working-directory: ${{ matrix.layer.path }}
+
+  # レイヤー4: ルーティング（並行実行可能）
+  routing:
+    name: Deploy Routing
+    runs-on: ubuntu-latest
+    needs: data
+    strategy:
+      matrix:
+        layer:
+          - { name: "routing-internal", path: "envs/prod/routing/foobar_internal" }
+          - { name: "routing-link", path: "envs/prod/routing/appfoobar_link" }
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.TERRAFORM_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.TERRAFORM_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.TERRAFORM_AWS_ASSUME_ROLE_ARN }}
+          role-duration-seconds: 3600
+
+      - uses: actions/checkout@v2
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init & Apply - ${{ matrix.layer.name }}
+        run: |
+          terraform init
+          terraform plan
+          terraform apply -auto-approve
+        working-directory: ${{ matrix.layer.path }}
+
+  # レイヤー5: アプリケーション・CI/CD（順次実行）
+  application:
+    name: Deploy Application
+    runs-on: ubuntu-latest
+    needs: routing
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.TERRAFORM_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.TERRAFORM_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.TERRAFORM_AWS_ASSUME_ROLE_ARN }}
+          role-duration-seconds: 3600
+
+      - uses: actions/checkout@v2
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init & Apply - Application
+        run: |
+          terraform init
+          terraform plan
+          terraform apply -auto-approve
+        working-directory: envs/prod/app/foobar
+
+      - name: Terraform Init & Apply - CI/CD
+        run: |
+          terraform init
+          terraform plan
+          terraform apply -auto-approve
+        working-directory: envs/prod/cicd/app_foobar
