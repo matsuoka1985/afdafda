@@ -29,6 +29,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(Auth::class, function ($app) {
             $credentialsPath = config('firebase.credentials.file');
             
+            // Skip Firebase initialization if no credentials provided (for testing)
+            if (empty($credentialsPath)) {
+                return null;
+            }
+            
             // If credentials is a file path, use it directly
             if (file_exists($credentialsPath)) {
                 $factory = (new Factory)->withServiceAccount($credentialsPath);
