@@ -30,10 +30,14 @@ jobs:
           extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, pdo_mysql
 
       - name: Copy test environment file
-        run: cp backend/.env.testing backend/.env
+        run: |
+          cd backend
+          cp .env.testing .env
 
       - name: Update database host for CI
-        run: sed -i 's/DB_HOST=mysql/DB_HOST=127.0.0.1/' backend/.env
+        run: |
+          cd backend
+          sed -i 's/DB_HOST=mysql/DB_HOST=127.0.0.1/' .env
 
       - name: Cache composer dependencies
         uses: actions/cache@v3
