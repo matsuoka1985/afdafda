@@ -34,6 +34,7 @@ jobs:
         with:
           php-version: '8.2'
           extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, pdo_mysql
+          ini-values: default_charset=UTF-8
 
       - name: Create test environment file
         run: |
@@ -46,6 +47,9 @@ jobs:
           sed -i 's/DB_PASSWORD=laravel_pass/DB_PASSWORD=root/' .env
           sed -i 's/APP_ENV=local/APP_ENV=testing/' .env
           sed -i 's/REDIS_HOST=redis/REDIS_HOST=127.0.0.1/' .env
+          # Set locale for UTF-8
+          echo "LC_ALL=C.UTF-8" >> .env
+          echo "LANG=C.UTF-8" >> .env
           # Disable Firebase for testing
           echo "FIREBASE_CREDENTIALS=" >> .env
 
@@ -73,4 +77,6 @@ jobs:
       - name: Run tests
         run: |
           cd backend
+          export LC_ALL=C.UTF-8
+          export LANG=C.UTF-8
           php artisan test
