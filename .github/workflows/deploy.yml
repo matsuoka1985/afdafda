@@ -47,7 +47,7 @@ jobs:
 
       - run: |
           export RUN_MIGRATIONS=false
-          docker compose up -d --build app web
+          docker compose up -d --build php nginx
 
       - name: Cache composer
         id: cache-composer
@@ -56,7 +56,7 @@ jobs:
           path: backend/vendor
           key: composer-v1-${{ hashFiles('backend/composer.lock') }}
 
-      - run: docker compose exec -T app composer install -n --prefer-dist --no-dev
+      - run: docker compose exec -T php composer install -n --prefer-dist --no-dev
         if: ${{ !steps.cache-composer.outputs.cache-hit }}
 
       - name: Setup Node.js
