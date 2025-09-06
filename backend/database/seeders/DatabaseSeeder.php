@@ -13,11 +13,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call([
-            UserSeeder::class,
-            PostSeeder::class,
-            CommentSeeder::class,
-            LikeSeeder::class,
-        ]);
+        // 環境に応じてシーダーを切り替え
+        if (app()->environment('production')) {
+            // 本番環境ではFakerを使わないマスターデータのみ
+            $this->call([
+                MasterDataSeeder::class,
+            ]);
+        } else {
+            // 開発・テスト環境ではFakerを使用したデータも含める
+            $this->call([
+                UserSeeder::class,
+                PostSeeder::class,
+                CommentSeeder::class,
+                LikeSeeder::class,
+            ]);
+        }
     }
 }
