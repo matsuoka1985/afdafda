@@ -19,6 +19,12 @@ jobs:
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+      
+      redis:
+        image: redis:7.0
+        ports:
+          - 6379:6379
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
       - uses: actions/checkout@v3
@@ -39,8 +45,9 @@ jobs:
           sed -i 's/DB_USERNAME=laravel_user/DB_USERNAME=root/' .env
           sed -i 's/DB_PASSWORD=laravel_pass/DB_PASSWORD=root/' .env
           sed -i 's/APP_ENV=local/APP_ENV=testing/' .env
-          sed -i 's/SESSION_DRIVER=redis/SESSION_DRIVER=array/' .env
-          sed -i 's/CACHE_STORE=database/CACHE_STORE=array/' .env
+          sed -i 's/REDIS_HOST=redis/REDIS_HOST=127.0.0.1/' .env
+          # Disable Firebase for testing
+          echo "FIREBASE_CREDENTIALS=" >> .env
 
       - name: Cache composer dependencies
         uses: actions/cache@v3
