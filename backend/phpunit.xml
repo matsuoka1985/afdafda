@@ -25,7 +25,6 @@
         <!-- <env name="DB_CONNECTION" value="sqlite"/> -->
         <!-- <env name="DB_DATABASE" value=":memory:"/> -->
         <server name="DB_CONNECTION" value="mysql_test"/>
-        <server name="DB_HOST" value=""/>
         <server name="DB_DATABASE" value="demo_test"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>
