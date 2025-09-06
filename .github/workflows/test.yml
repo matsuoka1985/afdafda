@@ -1,0 +1,62 @@
+name: Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: demo_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, pdo_mysql
+
+      - name: Copy test environment file
+        run: cp backend/.env.testing backend/.env
+
+      - name: Update database host for CI
+        run: sed -i 's/DB_HOST=mysql/DB_HOST=127.0.0.1/' backend/.env
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: backend/vendor
+          key: composer-${{ hashFiles('backend/composer.lock') }}
+
+      - name: Install composer dependencies
+        run: |
+          cd backend
+          composer install --no-progress --prefer-dist --optimize-autoloader
+
+      - name: Generate application key
+        run: |
+          cd backend
+          php artisan key:generate
+
+      - name: Run database migrations
+        run: |
+          cd backend
+          php artisan migrate --force
+
+      - name: Run tests
+        run: |
+          cd backend
+          php artisan test

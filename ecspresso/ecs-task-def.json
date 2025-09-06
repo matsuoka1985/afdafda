@@ -88,6 +88,10 @@
         {
           "name": "SESSION_LIFETIME",
           "value": "120"
+        },
+        {
+          "name": "RUN_SEEDERS",
+          "value": "true"
         }
       ],
       "environmentFiles": [
