@@ -12,7 +12,7 @@ class AuthVerifyService
     private $firebaseAuth;
     private $userRepository;
 
-    public function __construct(Auth $firebaseAuth, UserRepositoryInterface $userRepository)
+    public function __construct(?Auth $firebaseAuth, UserRepositoryInterface $userRepository)
     {
         $this->firebaseAuth = $firebaseAuth;
         $this->userRepository = $userRepository;
@@ -23,6 +23,10 @@ class AuthVerifyService
      */
     public function verifyToken(string $idToken): array
     {
+        if (!$this->firebaseAuth) {
+            throw new Exception('Firebase Auth is not available');
+        }
+        
         $verifiedIdToken = $this->firebaseAuth->verifyIdToken($idToken);
         $firebaseUid = $verifiedIdToken->claims()->get('sub');
         $email = $verifiedIdToken->claims()->get('email');
@@ -46,6 +50,10 @@ class AuthVerifyService
      */
     public function checkAuth(string $jwt): array
     {
+        if (!$this->firebaseAuth) {
+            throw new Exception('Firebase Auth is not available');
+        }
+        
         $verifiedIdToken = $this->firebaseAuth->verifyIdToken($jwt);
         $firebaseUid = $verifiedIdToken->claims()->get('sub');
         $firebaseEmail = $verifiedIdToken->claims()->get('email');
@@ -69,6 +77,10 @@ class AuthVerifyService
      */
     public function checkBearerToken(string $idToken): array
     {
+        if (!$this->firebaseAuth) {
+            throw new Exception('Firebase Auth is not available');
+        }
+        
         $verifiedIdToken = $this->firebaseAuth->verifyIdToken($idToken);
         $uid = $verifiedIdToken->claims()->get('sub');
 
@@ -83,6 +95,10 @@ class AuthVerifyService
      */
     public function firebaseLogin(string $idToken): array
     {
+        if (!$this->firebaseAuth) {
+            throw new Exception('Firebase Auth is not available');
+        }
+        
         $verifiedIdToken = $this->firebaseAuth->verifyIdToken($idToken);
         $uid = $verifiedIdToken->claims()->get('sub');
         

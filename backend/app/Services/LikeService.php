@@ -20,7 +20,7 @@ class LikeService
         LikeRepositoryInterface $likeRepository,
         PostRepositoryInterface $postRepository,
         UserRepositoryInterface $userRepository,
-        Auth $firebaseAuth
+        ?Auth $firebaseAuth = null
     ) {
         $this->likeRepository = $likeRepository;
         $this->postRepository = $postRepository;
@@ -49,6 +49,10 @@ class LikeService
                 throw new Exception('ユーザーが見つかりません');
             }
         } else {
+            if (!$this->firebaseAuth) {
+                throw new Exception('Firebase Auth is not available');
+            }
+            
             $verifiedIdToken = $this->firebaseAuth->verifyIdToken($jwt);
             $firebaseUid = $verifiedIdToken->claims()->get('sub');
 
@@ -112,6 +116,10 @@ class LikeService
                 throw new Exception('ユーザーが見つかりません');
             }
         } else {
+            if (!$this->firebaseAuth) {
+                throw new Exception('Firebase Auth is not available');
+            }
+            
             $verifiedIdToken = $this->firebaseAuth->verifyIdToken($jwt);
             $firebaseUid = $verifiedIdToken->claims()->get('sub');
 
