@@ -1,9 +1,16 @@
-resource "aws_iam_user" "github" {
-  name = "${local.name_prefix}-${local.service_name}-github"
+# GitHub ActionsのIAMユーザーは手動で作成済み (example-prod-terraform-github)
+# Terraformで管理すると削除時にアクセスキーが残存してエラーになるため、手動管理とする
+# resource "aws_iam_user" "github" {
+#   name = "${local.name_prefix}-${local.service_name}-github"
+# 
+#   tags = {
+#     Name = "${local.name_prefix}-${local.service_name}-github"
+#   }
+# }
 
-  tags = {
-    Name = "${local.name_prefix}-${local.service_name}-github"
-  }
+# 既存の手動作成されたIAMユーザーを参照
+data "aws_iam_user" "github" {
+  user_name = "example-prod-terraform-github"
 }
 
 resource "aws_iam_role" "deployer" {
