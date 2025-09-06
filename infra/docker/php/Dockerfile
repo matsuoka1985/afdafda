@@ -22,8 +22,8 @@ WORKDIR /var/www
 # =============================================================================
 FROM base AS development
 
-# ---------- 開発用ツール ----------  
-RUN apk add --no-cache bash make nodejs npm
+# ---------- 開発用ツール ----------
+RUN apk add --no-cache bash make nodejs-lts npm
 
 # 開発用: ボリュームマウントでコードを注入するため、COPYしない
 

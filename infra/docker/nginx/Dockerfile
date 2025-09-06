@@ -12,7 +12,7 @@ RUN apk add --no-cache curl
 FROM base AS development
 
 # 開発環境用のnginx設定ファイルをコピー
-COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY infra/docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
