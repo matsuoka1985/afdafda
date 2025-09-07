@@ -27,7 +27,7 @@ resource "aws_iam_role" "deployer" {
             "sts:TagSession"
           ],
           "Principal" : {
-            "AWS" : aws_iam_user.github.arn
+            "AWS" : data.aws_iam_user.github.arn
           }
         }
       ]
