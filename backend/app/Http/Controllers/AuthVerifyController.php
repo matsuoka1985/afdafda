@@ -39,11 +39,11 @@ class AuthVerifyController extends Controller
                 $result['token'],
                 60 * 24 * 7,
                 '/',
-                parse_url(env('APP_URL', 'http://localhost'), PHP_URL_HOST),
-                false,
+                null,
+                env('SESSION_SECURE_COOKIE', false),
                 true,
                 false,
-                'lax'
+                env('SESSION_SAME_SITE', 'lax')
             ));
 
         } catch (Exception $e) {
@@ -211,11 +211,11 @@ class AuthVerifyController extends Controller
                 '',
                 -1, // 即座に削除
                 '/',
-                parse_url(env('APP_URL', 'http://localhost'), PHP_URL_HOST),
-                false,
+                null,
+                env('SESSION_SECURE_COOKIE', false),
                 true,
                 false,
-                'lax'
+                env('SESSION_SAME_SITE', 'lax')
             ));
 
         } catch (Exception $e) {
