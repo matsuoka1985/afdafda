@@ -40,29 +40,6 @@ jobs:
           terraform init
           terraform destroy -auto-approve -refresh=false
 
-      - name: Pre-cleanup for Application Layer
-        run: |
-          cd terraform-infra/envs/prod/app/foobar
-          terraform init
-          
-          # Get resource names from Terraform outputs
-          CLUSTER_NAME=$(terraform output -raw cluster_name || echo "")
-          SERVICE_NAME=$(terraform output -raw service_name || echo "")
-          BUCKET_NAME=$(terraform output -raw bucket_name || echo "")
-          
-          # Stop ECS tasks if resources exist
-          if [ -n "$CLUSTER_NAME" ] && [ -n "$SERVICE_NAME" ]; then
-            aws ecs update-service --cluster "$CLUSTER_NAME" --service "$SERVICE_NAME" --desired-count 0 || true
-            sleep 10
-            aws ecs list-tasks --cluster "$CLUSTER_NAME" --output text --query 'taskArns[*]' | xargs -r -n1 aws ecs stop-task --cluster "$CLUSTER_NAME" --task || true
-            sleep 30
-          fi
-          
-          # Empty S3 bucket if it exists
-          if [ -n "$BUCKET_NAME" ]; then
-            aws s3 rm "s3://$BUCKET_NAME" --recursive || true
-          fi
-
       - name: Destroy Application Layer
         run: |
           cd terraform-infra/envs/prod/app/foobar
