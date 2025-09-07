@@ -149,6 +149,11 @@ resource "aws_ecs_service" "this" {
   deployment_minimum_healthy_percent = 100
   deployment_maximum_percent         = 200
   force_new_deployment               = true
+  wait_for_steady_state              = false
+  
+  lifecycle {
+    ignore_changes = [desired_count]
+  }
 
   load_balancer {
     container_name   = "nginx"

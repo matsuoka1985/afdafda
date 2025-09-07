@@ -40,6 +40,16 @@ jobs:
           terraform init
           terraform destroy -auto-approve -refresh=false
 
+      - name: Stop ECS Tasks before destroy
+        run: |
+          # Stop all running tasks in the cluster
+          CLUSTER_NAME="example-prod-foobar"
+          aws ecs list-tasks --cluster $CLUSTER_NAME --output text --query 'taskArns[*]' | xargs -r -n1 aws ecs stop-task --cluster $CLUSTER_NAME --task || true
+          
+          # Wait for tasks to fully stop
+          echo "Waiting for tasks to stop..."
+          sleep 60
+
       - name: Destroy Application Layer
         run: |
           cd terraform-infra/envs/prod/app/foobar
