@@ -1,5 +1,6 @@
 resource "aws_s3_bucket" "env_file" {
-  bucket = "sns-shonansurvivors-${local.name_prefix}-${local.service_name}-env-file"
+  bucket        = "sns-shonansurvivors-${local.name_prefix}-${local.service_name}-env-file"
+  force_destroy = true
 
   server_side_encryption_configuration {
     rule {
