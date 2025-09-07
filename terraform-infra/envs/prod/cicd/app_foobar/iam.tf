@@ -37,6 +37,11 @@ resource "aws_iam_role" "deployer" {
   tags = {
     Name = "${local.name_prefix}-${local.service_name}-deployer"
   }
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = all
+  }
 }
 
 data "aws_iam_policy" "ecr_power_user" {
@@ -46,6 +51,11 @@ data "aws_iam_policy" "ecr_power_user" {
 resource "aws_iam_role_policy_attachment" "role_deployer_policy_ecr_power_user" {
   role       = aws_iam_role.deployer.name
   policy_arn = data.aws_iam_policy.ecr_power_user.arn
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = all
+  }
 }
 
 resource "aws_iam_role_policy" "s3" {
@@ -73,6 +83,11 @@ resource "aws_iam_role_policy" "s3" {
       ]
     }
   )
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = all
+  }
 }
 
 resource "aws_iam_role_policy" "ecs" {
@@ -147,4 +162,9 @@ resource "aws_iam_role_policy" "ecs" {
       ]
     }
   )
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = all
+  }
 }

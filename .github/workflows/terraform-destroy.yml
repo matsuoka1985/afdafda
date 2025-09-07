@@ -38,7 +38,7 @@ jobs:
         run: |
           cd terraform-infra/envs/prod/cicd/app_foobar
           terraform init
-          terraform destroy -auto-approve
+          terraform destroy -auto-approve -refresh=false
 
       - name: Destroy Application Layer
         run: |
