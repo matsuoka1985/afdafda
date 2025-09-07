@@ -8,6 +8,7 @@ on:
     branches:
       - main
 
+      
 env:
   AWS_REGION: ap-northeast-1
   IMAGE_TAG: ${{ github.sha }}
@@ -134,7 +135,7 @@ jobs:
             --debug
         working-directory: ./ecspresso
 
-        
+
       - name: Check service diff
         run: ecspresso diff --config config_$ENV_NAME.yaml
         working-directory: ./ecspresso
@@ -148,7 +149,7 @@ jobs:
             # Get the latest task definition revision
             LATEST_REVISION=$(aws ecs describe-task-definition --task-definition example-prod-foobar --query 'taskDefinition.revision' --output text)
             echo "Using task definition revision: $LATEST_REVISION"
-            
+
             # Force service update using AWS CLI
             aws ecs update-service \
               --cluster example-prod-foobar \
