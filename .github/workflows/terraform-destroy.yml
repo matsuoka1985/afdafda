@@ -43,52 +43,53 @@ jobs:
       - name: Destroy Application Layer
         run: |
           cd terraform-infra/envs/prod/app/foobar
-          terraform destroy -auto-approve
+          terraform init
+          terraform destroy -auto-approve -refresh=false
 
       - name: Destroy Routing Layer (internal)
         run: |
           cd terraform-infra/envs/prod/routing/foobar_internal
           terraform init
-          terraform destroy -auto-approve
+          terraform destroy -auto-approve -refresh=false
 
       - name: Destroy Routing Layer (link)
         run: |
           cd terraform-infra/envs/prod/routing/appfoobar_link
           terraform init
-          terraform destroy -auto-approve
+          terraform destroy -auto-approve -refresh=false
 
       - name: Destroy Cache Layer
         run: |
           cd terraform-infra/envs/prod/cache/foobar
           terraform init
-          terraform destroy -auto-approve
+          terraform destroy -auto-approve -refresh=false
 
       - name: Destroy Database Layer
         run: |
           cd terraform-infra/envs/prod/db/foobar
           terraform init
-          terraform destroy -auto-approve
+          terraform destroy -auto-approve -refresh=false
 
       - name: Destroy Log Layer (db_foobar)
         run: |
           cd terraform-infra/envs/prod/log/db_foobar
           terraform init
-          terraform destroy -auto-approve
+          terraform destroy -auto-approve -refresh=false
 
       - name: Destroy Log Layer (app_foobar)
         run: |
           cd terraform-infra/envs/prod/log/app_foobar
           terraform init
-          terraform destroy -auto-approve
+          terraform destroy -auto-approve -refresh=false
 
       - name: Destroy Log Layer (ALB)
         run: |
           cd terraform-infra/envs/prod/log/alb
           terraform init
-          terraform destroy -auto-approve
+          terraform destroy -auto-approve -refresh=false
 
       - name: Destroy Network Layer
         run: |
           cd terraform-infra/envs/prod/network/main
           terraform init
-          terraform destroy -auto-approve
+          terraform destroy -auto-approve -refresh=false
