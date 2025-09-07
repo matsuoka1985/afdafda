@@ -34,11 +34,9 @@ jobs:
         with:
           terraform_version: 1.0.0
 
-      - name: Destroy CI/CD Layer
+      - name: Skip CI/CD Layer (protected resources)
         run: |
-          cd terraform-infra/envs/prod/cicd/app_foobar
-          terraform init
-          terraform destroy -auto-approve -refresh=false
+          echo "Skipping CI/CD layer destruction - resources are protected with prevent_destroy"
 
       - name: Stop ECS Tasks before destroy
         run: |
