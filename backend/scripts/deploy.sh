@@ -14,7 +14,7 @@ echo "SESSION_DRIVER=${SESSION_DRIVER:-unset}"
 if [ ! -z "$FIREBASE_CREDENTIALS" ]; then
   echo "Creating Firebase credentials file..."
   mkdir -p /var/www/storage/app/firebase
-  echo "$FIREBASE_CREDENTIALS" | base64 -d > /var/www/storage/app/firebase/firebase-adminsdk.json
+  echo "$FIREBASE_CREDENTIALS" > /var/www/storage/app/firebase/firebase-adminsdk.json
   echo "✓ Firebase credentials file created"
 else
   echo "⚠ FIREBASE_CREDENTIALS not provided"
