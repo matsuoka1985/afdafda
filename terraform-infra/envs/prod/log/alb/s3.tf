@@ -1,5 +1,6 @@
 resource "aws_s3_bucket" "this" {
-  bucket = "sns-shonansurvivors-${local.name_prefix}-alb-log"
+  bucket        = "sns-shonansurvivors-${local.name_prefix}-alb-log"
+  force_destroy = true
 
   server_side_encryption_configuration {
     rule {
