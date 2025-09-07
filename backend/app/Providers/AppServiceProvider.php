@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Log;
 use App\Repositories\UserRepositoryInterface;
 use App\Repositories\UserRepository;
 use App\Repositories\PostRepositoryInterface;
@@ -34,11 +35,20 @@ class AppServiceProvider extends ServiceProvider
                 return null;
             }
             
+            // Debug logging
+            Log::info('Firebase credentials debug', [
+                'credentials_path' => $credentialsPath,
+                'file_exists' => file_exists($credentialsPath),
+                'is_readable' => is_readable($credentialsPath),
+                'file_size' => file_exists($credentialsPath) ? filesize($credentialsPath) : 'N/A'
+            ]);
+            
             // If credentials is a file path, use it directly
             if (file_exists($credentialsPath)) {
                 $factory = (new Factory)->withServiceAccount($credentialsPath);
             } else {
                 // If credentials is base64 encoded content, decode and use it
+                Log::warning('Firebase credentials file not found, attempting base64 decode', ['path' => $credentialsPath]);
                 $decodedCredentials = base64_decode($credentialsPath);
                 $factory = (new Factory)->withServiceAccount($decodedCredentials);
             }
