@@ -28,28 +28,26 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(LikeRepositoryInterface::class, LikeRepository::class);
         
         $this->app->singleton(Auth::class, function ($app) {
-            $credentialsPath = config('firebase.credentials.file');
+            $credentialsPath = '/var/www/storage/app/firebase/firebase-adminsdk.json';
             
             // Skip Firebase initialization if no credentials provided (for testing)
-            if (empty($credentialsPath)) {
+            $credentialsEnv = env('FIREBASE_CREDENTIALS');
+            if (empty($credentialsEnv)) {
                 return null;
             }
             
-            // Debug logging
-            Log::info('Firebase credentials debug', [
-                'credentials_path' => $credentialsPath,
-                'file_exists' => file_exists($credentialsPath),
-                'is_readable' => is_readable($credentialsPath),
-                'file_size' => file_exists($credentialsPath) ? filesize($credentialsPath) : 'N/A'
-            ]);
-            
-            // If credentials is a file path, use it directly
-            if (file_exists($credentialsPath)) {
+            // Check if the file exists (created by deploy.sh)
+            if (file_exists($credentialsPath) && is_readable($credentialsPath)) {
+                Log::info('Using Firebase credentials file', ['path' => $credentialsPath]);
                 $factory = (new Factory)->withServiceAccount($credentialsPath);
             } else {
-                // If credentials is base64 encoded content, decode and use it
-                Log::warning('Firebase credentials file not found, attempting base64 decode', ['path' => $credentialsPath]);
-                $decodedCredentials = base64_decode($credentialsPath);
+                // If file doesn't exist, use base64 decoded credentials directly
+                Log::info('Firebase credentials file not found, using base64 decoded credentials');
+                $decodedCredentials = base64_decode($credentialsEnv);
+                if ($decodedCredentials === false || empty($decodedCredentials)) {
+                    Log::error('Failed to decode Firebase credentials');
+                    return null;
+                }
                 $factory = (new Factory)->withServiceAccount($decodedCredentials);
             }
             
