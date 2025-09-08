@@ -17,6 +17,9 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
         return navigateTo('/login');
       }
 
+      const config = useRuntimeConfig();
+      const apiBaseUrl = config.apiBaseUrlServer;
+      
       const cookieHeader = event.node.req.headers.cookie || '' // HTTPリクエストからCookieヘッダーを取得
       
       // 詳細なデバッグ情報
@@ -34,11 +37,8 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
         // 環境情報
         is_server: import.meta.server,
         is_client: import.meta.client,
-        api_base_url: config.apiBaseUrlServer
+        api_base_url: apiBaseUrl
       })
-
-      const config = useRuntimeConfig();
-      const apiBaseUrl = config.apiBaseUrlServer;
       
       console.log(' [AUTH MIDDLEWARE SERVER] API呼び出し情報:', {
         api_url: `${apiBaseUrl}/api/auth/check`,
