@@ -1,13 +1,5 @@
 // 認証必須ページ用ミドルウェア（未認証はログインページにリダイレクト）
 export default defineNuxtRouteMiddleware(async (to, from) => {
-  // 一時的にSSR認証チェックを無効化（クロスドメインクッキー問題のテスト）
-  if (import.meta.server) {
-    console.log('[AUTH MIDDLEWARE SERVER] SSR認証チェックをスキップ（テスト中）')
-    return // SSR認証チェックを無効化
-  }
-
-  /*
-  // 元のSSR認証チェックコード（一時的にコメントアウト）  
   if (import.meta.server) { // SSRでの事前認証チェック（ページフラッシュ防止）
     try {
       console.log('[AUTH MIDDLEWARE SERVER] 認証必須ページ - 認証チェック開始')
@@ -31,22 +23,18 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
       const cookieHeader = event.node.req.headers.cookie || '' // HTTPリクエストからCookieヘッダーを取得
       
       // 詳細なデバッグ情報
-      console.log(' [AUTH MIDDLEWARE SERVER] 詳細デバッグ情報:', {
-        // クッキー情報
-        has_cookie_header: !!cookieHeader,
-        cookie_length: cookieHeader.length,
-        has_auth_jwt: cookieHeader.includes('auth_jwt'),
-        all_cookies_raw: cookieHeader,
-        // リクエスト情報
-        request_url: event.node.req.url,
-        request_method: event.node.req.method,
-        // ヘッダー情報
-        all_headers: event.node.req.headers,
-        // 環境情報
-        is_server: import.meta.server,
-        is_client: import.meta.client,
-        api_base_url: apiBaseUrl
-      })
+      console.log(' [AUTH MIDDLEWARE SERVER] 🍪 クッキー詳細分析:')
+      console.log('  - クッキーヘッダー存在:', !!cookieHeader)
+      console.log('  - クッキーヘッダー長さ:', cookieHeader.length)
+      console.log('  - auth_jwt含有:', cookieHeader.includes('auth_jwt'))
+      console.log('  - 生クッキー内容:', JSON.stringify(cookieHeader))
+      console.log(' [AUTH MIDDLEWARE SERVER] 🌐 リクエスト情報:')
+      console.log('  - URL:', event.node.req.url)
+      console.log('  - Method:', event.node.req.method)
+      console.log('  - User-Agent:', event.node.req.headers['user-agent']?.substring(0, 50))
+      console.log(' [AUTH MIDDLEWARE SERVER] ⚙️ API呼び出し設定:')
+      console.log('  - API Base URL:', apiBaseUrl)
+      console.log('  - 送信予定クッキー:', cookieHeader ? 'あり' : 'なし')
       
       console.log(' [AUTH MIDDLEWARE SERVER] API呼び出し情報:', {
         api_url: `${apiBaseUrl}/api/auth/check`,
@@ -103,7 +91,6 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     }
     return
   }
-  */
 
   console.log(' [AUTH MIDDLEWARE CLIENT] クライアントサイド認証チェック開始') // SPA遷移時のフォールバック認証チェック
 
