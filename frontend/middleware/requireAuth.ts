@@ -141,6 +141,14 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     const config = useRuntimeConfig();
     const apiBaseUrl = config.public.apiBaseUrl;
     
+    // クライアントサイドでのクッキー状況を確認
+    console.log(' [AUTH MIDDLEWARE CLIENT] 🍪 クライアントサイドクッキー確認:')
+    console.log('  - Document.cookie:', document.cookie)
+    console.log('  - auth_jwt含有:', document.cookie.includes('auth_jwt'))
+    console.log(' [AUTH MIDDLEWARE CLIENT] 🌐 リクエスト情報:')
+    console.log('  - API URL:', `${apiBaseUrl}/api/auth/check`)
+    console.log('  - Current Origin:', window.location.origin)
+    
     const authCheck = await $fetch(`${apiBaseUrl}/api/auth/check`, { // Laravel直接呼び出し
       credentials: 'include' // HTTP-Only Cookie送信
     })
