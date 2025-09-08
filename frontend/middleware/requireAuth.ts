@@ -54,6 +54,23 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
       console.log('  - クッキーヘッダー長さ:', cookieHeader.length)
       console.log('  - auth_jwt含有:', cookieHeader.includes('auth_jwt'))
       console.log('  - 生クッキー内容:', JSON.stringify(cookieHeader))
+      
+      // ブラウザからVercel SSRに送られた生のクッキーヘッダーを確認
+      const rawCookieFromBrowser = event.node.req.headers.cookie || ''
+      console.log(' [AUTH MIDDLEWARE SERVER] 🔍 ブラウザ→Vercel SSR 生クッキーヘッダー:')
+      console.log('  - 存在:', !!rawCookieFromBrowser)
+      console.log('  - 長さ:', rawCookieFromBrowser.length)
+      console.log('  - 内容:', JSON.stringify(rawCookieFromBrowser))
+      console.log('  - auth_jwt含有:', rawCookieFromBrowser.includes('auth_jwt'))
+      
+      // 全てのリクエストヘッダーを確認
+      console.log(' [AUTH MIDDLEWARE SERVER] 📋 全リクエストヘッダー:')
+      const headers = event.node.req.headers
+      Object.keys(headers).forEach(key => {
+        if (key.toLowerCase().includes('cookie') || key.toLowerCase().includes('auth')) {
+          console.log(`  - ${key}: ${JSON.stringify(headers[key])}`)
+        }
+      })
       console.log(' [AUTH MIDDLEWARE SERVER] 🌐 リクエスト情報:')
       console.log('  - URL:', event.node.req.url)
       console.log('  - Method:', event.node.req.method)
