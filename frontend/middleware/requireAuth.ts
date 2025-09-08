@@ -20,7 +20,33 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
       const config = useRuntimeConfig();
       const apiBaseUrl = config.apiBaseUrlServer;
       
-      const cookieHeader = event.node.req.headers.cookie || '' // HTTPリクエストからCookieヘッダーを取得
+      // Nuxt3推奨方法でクッキー取得を試行
+      let cookieHeader = ''
+      
+      try {
+        // 方法1: useCookie でauth_jwtクッキーを取得
+        const authJwtCookie = useCookie('auth_jwt', {
+          default: () => null,
+          httpOnly: true,
+          secure: true,
+          sameSite: 'none'
+        })
+        
+        if (authJwtCookie.value) {
+          cookieHeader = `auth_jwt=${authJwtCookie.value}`
+          console.log(' [AUTH MIDDLEWARE SERVER] ✅ useCookie経由でクッキー取得成功')
+        } else {
+          console.log(' [AUTH MIDDLEWARE SERVER] ❌ useCookie経由でクッキー取得失敗')
+        }
+      } catch (error) {
+        console.log(' [AUTH MIDDLEWARE SERVER] ❌ useCookie エラー:', error)
+      }
+      
+      // 方法2: 従来通りヘッダーからも取得を試行（フォールバック）
+      if (!cookieHeader) {
+        cookieHeader = event.node.req.headers.cookie || ''
+        console.log(' [AUTH MIDDLEWARE SERVER] フォールバック: req.headers.cookie 使用')
+      }
       
       // 詳細なデバッグ情報
       console.log(' [AUTH MIDDLEWARE SERVER] 🍪 クッキー詳細分析:')
