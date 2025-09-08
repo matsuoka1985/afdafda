@@ -33,10 +33,22 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
       const config = useRuntimeConfig();
       const apiBaseUrl = config.apiBaseUrlServer;
       
+      console.log(' [AUTH MIDDLEWARE SERVER] API呼び出し情報:', {
+        api_url: `${apiBaseUrl}/api/auth/check`,
+        sending_cookies: !!cookieHeader,
+        cookie_length: cookieHeader.length
+      })
+
       const authCheck = await $fetch(`${apiBaseUrl}/api/auth/check`, { // Laravel直接呼び出し
         headers: {
           'Cookie': cookieHeader
         }
+      })
+
+      console.log(' [AUTH MIDDLEWARE SERVER] API レスポンス詳細:', {
+        response_type: typeof authCheck,
+        response_keys: authCheck && typeof authCheck === 'object' ? Object.keys(authCheck) : 'N/A',
+        response_value: authCheck
       })
 
       if (!authCheck || typeof authCheck !== 'object') { // authCheckオブジェクトの型ガード
