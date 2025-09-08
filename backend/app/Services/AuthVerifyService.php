@@ -130,6 +130,18 @@ class AuthVerifyService
             $newUser = false;
         }
 
+        // Firebase Session Cookie を作成（24時間有効）
+        try {
+            $sessionCookie = $this->firebaseAuth->createSessionCookie($idToken, 60 * 60 * 24);
+            $tokenType = 'session_cookie';
+            $token = $sessionCookie;
+        } catch (Exception $e) {
+            // Session Cookie作成に失敗した場合は従来のIDトークンを使用
+            Log::warning('Firebase Session Cookie作成失敗、IDトークンを使用', ['error' => $e->getMessage()]);
+            $tokenType = 'id_token';
+            $token = $idToken;
+        }
+
         return [
             'success' => true,
             'new_user' => $newUser,
@@ -139,7 +151,55 @@ class AuthVerifyService
                 'email' => $user->email,
                 'name' => $user->name,
             ],
-            'token' => $idToken
+            'token' => $token,
+            'token_type' => $tokenType
         ];
+    }
+
+    /**
+     * Firebase Session Cookieから認証状態を確認
+     */
+    public function checkSessionCookie(string $sessionCookie): array
+    {
+        if (!$this->firebaseAuth) {
+            throw new Exception('Firebase Auth is not available');
+        }
+        
+        $decodedClaims = $this->firebaseAuth->verifySessionCookie($sessionCookie);
+        $firebaseUid = $decodedClaims->claims()->get('sub');
+        $firebaseEmail = $decodedClaims->claims()->get('email');
+        $expiry = $decodedClaims->claims()->get('exp');
+
+        Log::info('Firebase Session Cookie検証成功', [
+            'firebase_uid' => $firebaseUid,
+            'firebase_email' => $firebaseEmail,
+            'expires_at' => date('Y-m-d H:i:s', $expiry)
+        ]);
+
+        return [
+            'uid' => $firebaseUid,
+            'email' => $firebaseEmail,
+            'expires_at' => date('Y-m-d H:i:s', $expiry)
+        ];
+    }
+
+    /**
+     * 汎用認証チェック（Session CookieまたはIDトークンを自動判別）
+     */
+    public function checkAuthToken(string $token): array
+    {
+        if (!$this->firebaseAuth) {
+            throw new Exception('Firebase Auth is not available');
+        }
+
+        // まずSession Cookieとして検証を試行
+        try {
+            return $this->checkSessionCookie($token);
+        } catch (Exception $e) {
+            Log::info('Session Cookie検証失敗、IDトークンとして再試行', ['error' => $e->getMessage()]);
+            
+            // Session Cookie検証失敗時はIDトークンとして検証
+            return $this->checkAuth($token);
+        }
     }
 }

@@ -90,7 +90,8 @@ class AuthVerifyController extends Controller
                 ], 401);
             }
 
-            $result = $this->authVerifyService->checkAuth($jwt);
+            // Session CookieまたはIDトークンを自動判別して検証
+            $result = $this->authVerifyService->checkAuthToken($jwt);
 
             return response()->json([
                 'authenticated' => true,
@@ -154,7 +155,8 @@ class AuthVerifyController extends Controller
                 'secure' => env('SESSION_SECURE_COOKIE', false),
                 'same_site' => env('SESSION_SAME_SITE', 'lax'),
                 'http_only' => true,
-                'expires' => 60 * 24
+                'expires' => 60 * 24,
+                'token_type' => $result['token_type'] ?? 'unknown'
             ];
             
             Log::info('クッキー設定', $cookieSettings);
@@ -163,6 +165,7 @@ class AuthVerifyController extends Controller
                 'success' => $result['success'],
                 'new_user' => $result['new_user'],
                 'user' => $result['user'],
+                'token_type' => $result['token_type'] ?? 'unknown'
             ])->withCookie(cookie(
                 'auth_jwt',
                 $result['token'],
