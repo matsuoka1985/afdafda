@@ -42,7 +42,8 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
       const authCheck = await $fetch(`${apiBaseUrl}/api/auth/check`, { // Laravel直接呼び出し
         headers: {
           'Cookie': cookieHeader
-        }
+        },
+        credentials: 'include' // クロスドメインでクッキー送信を有効化
       })
 
       console.log(' [AUTH MIDDLEWARE SERVER] API レスポンス詳細:', {
