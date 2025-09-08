@@ -125,8 +125,8 @@ const errorMessage = ref<string>('');  // API エラーメッセージ表示用�
 // === 環境設定 ===
 /**
  * サーバーサイドとクライアントサイドで異なるAPI基底URLを使用
- * - サーバーサイド（Nuxtコンテナ内）: http://nginx
- * - クライアントサイド（ブラウザ）: http://localhost
+ * 開発環境: SSR=http://nginx、ブラウザ=http://localhost
+ * 本番環境: SSR・ブラウザ共に=https://smatsuoka.click
  */
 const config = useRuntimeConfig();
 const getApiBaseUrl = () => {

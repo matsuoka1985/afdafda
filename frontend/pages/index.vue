@@ -17,9 +17,9 @@ const config = useRuntimeConfig();
 const getApiBaseUrl = () => {
   // import.meta.server でSSRかクライアントかを判定
   if (import.meta.server) {
-    return config.apiBaseUrlServer;// SSR用：http://nginx など
+    return config.apiBaseUrlServer;// SSR用：開発環境=http://nginx、本番環境=https://smatsuoka.click
   } else {
-    return config.public.apiBaseUrl; // クライアント用：http://localhost など
+    return config.public.apiBaseUrl; // クライアント用：開発環境=http://localhost、本番環境=https://smatsuoka.click
   }
 };
 
