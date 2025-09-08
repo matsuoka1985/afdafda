@@ -1,5 +1,13 @@
 // 認証必須ページ用ミドルウェア（未認証はログインページにリダイレクト）
 export default defineNuxtRouteMiddleware(async (to, from) => {
+  // 一時的にSSR認証チェックを無効化（クロスドメインクッキー問題のテスト）
+  if (import.meta.server) {
+    console.log('[AUTH MIDDLEWARE SERVER] SSR認証チェックをスキップ（テスト中）')
+    return // SSR認証チェックを無効化
+  }
+
+  /*
+  // 元のSSR認証チェックコード（一時的にコメントアウト）  
   if (import.meta.server) { // SSRでの事前認証チェック（ページフラッシュ防止）
     try {
       console.log('[AUTH MIDDLEWARE SERVER] 認証必須ページ - 認証チェック開始')
@@ -95,6 +103,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     }
     return
   }
+  */
 
   console.log(' [AUTH MIDDLEWARE CLIENT] クライアントサイド認証チェック開始') // SPA遷移時のフォールバック認証チェック
 
