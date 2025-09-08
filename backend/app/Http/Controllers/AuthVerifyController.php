@@ -148,17 +148,17 @@ class AuthVerifyController extends Controller
                 'success' => $result['success'],
                 'new_user' => $result['new_user'],
                 'user' => $result['user'],
-            ])->cookie(
+            ])->withCookie(cookie(
                 'auth_jwt',
                 $result['token'],
                 60 * 24,
                 '/',
                 null,
-                false,
+                env('SESSION_SECURE_COOKIE', false),
                 true,
                 false,
-                'lax'
-            );
+                env('SESSION_SAME_SITE', 'lax')
+            ));
 
         } catch (Exception $e) {
             Log::error('firebase-login failed: ' . $e->getMessage(), ['exception' => $e]);
