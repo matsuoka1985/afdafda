@@ -18,7 +18,17 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
       }
 
       const cookieHeader = event.node.req.headers.cookie || '' // HTTPリクエストからCookieヘッダーを取得
-      console.log(' [AUTH MIDDLEWARE SERVER] Cookie header:', cookieHeader.includes('auth_jwt') ? 'JWT あり' : 'JWT なし')
+      console.log(' [AUTH MIDDLEWARE SERVER] Cookie header 詳細:', {
+        has_auth_jwt: cookieHeader.includes('auth_jwt'),
+        full_cookie_header: cookieHeader,
+        request_url: event.node.req.url,
+        request_method: event.node.req.method,
+        request_headers: {
+          origin: event.node.req.headers.origin,
+          referer: event.node.req.headers.referer,
+          'user-agent': event.node.req.headers['user-agent']?.substring(0, 100)
+        }
+      })
 
       const config = useRuntimeConfig();
       const apiBaseUrl = config.apiBaseUrlServer;

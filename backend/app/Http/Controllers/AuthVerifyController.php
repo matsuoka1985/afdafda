@@ -66,7 +66,11 @@ class AuthVerifyController extends Controller
             
             Log::info('認証チェック開始', [
                 'jwt_exists' => !empty($jwt),
-                'all_cookies' => array_keys($request->cookies->all())
+                'all_cookies' => array_keys($request->cookies->all()),
+                'request_origin' => $request->header('Origin'),
+                'request_referer' => $request->header('Referer'),
+                'user_agent' => $request->header('User-Agent'),
+                'cookie_header' => $request->header('Cookie')
             ]);
 
             if (empty($jwt)) {
@@ -143,6 +147,17 @@ class AuthVerifyController extends Controller
             }
 
             $result = $this->authVerifyService->firebaseLogin($idToken);
+
+            // クッキー設定をログ出力
+            $cookieSettings = [
+                'domain' => env('SESSION_DOMAIN', null),
+                'secure' => env('SESSION_SECURE_COOKIE', false),
+                'same_site' => env('SESSION_SAME_SITE', 'lax'),
+                'http_only' => true,
+                'expires' => 60 * 24
+            ];
+            
+            Log::info('クッキー設定', $cookieSettings);
 
             return response()->json([
                 'success' => $result['success'],
