@@ -85,11 +85,18 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
         cookie_length: cookieHeader.length
       })
 
+      console.log(' [AUTH MIDDLEWARE SERVER] 🚀 送信するリクエストヘッダー:')
+      console.log('  - Cookie:', cookieHeader)
+      console.log('  - User-Agent:', event.node.req.headers['user-agent'] || 'Nuxt SSR')
+      
       const authCheck = await $fetch(`${apiBaseUrl}/api/auth/check`, { // Laravel直接呼び出し
+        method: 'GET',
         headers: {
-          'Cookie': cookieHeader
-        },
-        credentials: 'include' // クロスドメインでクッキー送信を有効化
+          'Cookie': cookieHeader,
+          'User-Agent': event.node.req.headers['user-agent'] || 'Nuxt SSR',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
       })
 
       console.log(' [AUTH MIDDLEWARE SERVER] API レスポンス詳細:', {
