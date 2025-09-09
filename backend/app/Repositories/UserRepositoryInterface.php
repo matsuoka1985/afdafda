@@ -2,12 +2,10 @@
 
 namespace App\Repositories;
 
-use App\Models\User;
-
 interface UserRepositoryInterface
 {
-    public function findByEmail(string $email): ?User;
-    public function findByFirebaseUid(string $firebaseUid): ?User;
-    public function create(array $userData): User;
-    public function update(User $user, array $userData): bool;
+    public function findByEmail(string $email): ?array;
+    public function findByFirebaseUid(string $firebaseUid): ?array;
+    public function create(array $userData): array;
+    public function update(array $user, array $userData): bool;
 }

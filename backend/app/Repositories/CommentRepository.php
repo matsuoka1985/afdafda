@@ -3,25 +3,37 @@
 namespace App\Repositories;
 
 use App\Models\Comment;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 class CommentRepository implements CommentRepositoryInterface
 {
-    public function findByPostId(string $postId, int $perPage, int $page): LengthAwarePaginator
+    public function findByPostId(string $postId, int $perPage, int $page): array
     {
-        return Comment::with(['user:id,name,email'])
+        $paginator = Comment::with(['user:id,name,email'])
             ->where('post_id', $postId)
             ->orderBy('created_at', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
+
+        return [
+            'data' => collect($paginator->items())->map(function ($item) {
+                return $item->toArray();
+            })->toArray(),
+            'current_page' => $paginator->currentPage(),
+            'last_page' => $paginator->lastPage(),
+            'per_page' => $paginator->perPage(),
+            'total' => $paginator->total(),
+            'has_more_pages' => $paginator->hasMorePages(),
+        ];
     }
 
-    public function create(array $commentData): Comment
+    public function create(array $commentData): array
     {
-        return Comment::create($commentData);
+        $comment = Comment::create($commentData);
+        return $comment->toArray();
     }
 
-    public function findWithUser(int $commentId): ?Comment
+    public function findWithUser(int $commentId): ?array
     {
-        return Comment::with(['user:id,name,email'])->find($commentId);
+        $comment = Comment::with(['user:id,name,email'])->find($commentId);
+        return $comment ? $comment->toArray() : null;
     }
 }

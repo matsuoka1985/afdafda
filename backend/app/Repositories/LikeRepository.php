@@ -6,21 +6,24 @@ use App\Models\Like;
 
 class LikeRepository implements LikeRepositoryInterface
 {
-    public function findByUserAndPost(int $userId, string $postId): ?Like
+    public function findByUserAndPost(int $userId, string $postId): ?array
     {
-        return Like::where('user_id', $userId)
+        $like = Like::where('user_id', $userId)
                    ->where('post_id', $postId)
                    ->first();
+        return $like ? $like->toArray() : null;
     }
 
-    public function create(array $likeData): Like
+    public function create(array $likeData): array
     {
-        return Like::create($likeData);
+        $like = Like::create($likeData);
+        return $like->toArray();
     }
 
-    public function delete(Like $like): bool
+    public function delete(array $like): bool
     {
-        return $like->delete();
+        $model = Like::find($like['id']);
+        return $model ? $model->delete() : false;
     }
 
     public function countByPostId(string $postId): int

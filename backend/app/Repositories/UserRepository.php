@@ -6,23 +6,27 @@ use App\Models\User;
 
 class UserRepository implements UserRepositoryInterface
 {
-    public function findByEmail(string $email): ?User
+    public function findByEmail(string $email): ?array
     {
-        return User::where('email', $email)->first();
+        $user = User::where('email', $email)->first();
+        return $user ? $user->toArray() : null;
     }
 
-    public function findByFirebaseUid(string $firebaseUid): ?User
+    public function findByFirebaseUid(string $firebaseUid): ?array
     {
-        return User::where('firebase_uid', $firebaseUid)->first();
+        $user = User::where('firebase_uid', $firebaseUid)->first();
+        return $user ? $user->toArray() : null;
     }
 
-    public function create(array $userData): User
+    public function create(array $userData): array
     {
-        return User::create($userData);
+        $user = User::create($userData);
+        return $user->toArray();
     }
 
-    public function update(User $user, array $userData): bool
+    public function update(array $user, array $userData): bool
     {
-        return $user->update($userData);
+        $model = User::find($user['id']);
+        return $model ? $model->update($userData) : false;
     }
 }

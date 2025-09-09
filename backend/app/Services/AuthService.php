@@ -35,7 +35,7 @@ class AuthService
             ]);
 
             Log::info('User registered successfully', [
-                'user_id' => $user->id,
+                'user_id' => $user['id'],
                 'firebase_uid' => $userData['firebase_uid'],
                 'name' => $userData['name']
             ]);
@@ -44,10 +44,10 @@ class AuthService
                 'success' => true,
                 'message' => 'ユーザー登録が完了しました',
                 'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'firebase_uid' => $user->firebase_uid
+                    'id' => $user['id'],
+                    'name' => $user['name'],
+                    'email' => $user['email'],
+                    'firebase_uid' => $user['firebase_uid']
                 ]
             ];
 
@@ -79,10 +79,10 @@ class AuthService
             'success' => true,
             'message' => 'ログイン成功',
             'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'firebase_uid' => $user->firebase_uid
+                'id' => $user['id'],
+                'name' => $user['name'],
+                'email' => $user['email'],
+                'firebase_uid' => $user['firebase_uid']
             ]
         ];
     }

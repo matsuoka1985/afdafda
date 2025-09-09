@@ -146,10 +146,10 @@ class AuthVerifyService
             'success' => true,
             'new_user' => $newUser,
             'user' => [
-                'id' => $user->id,
-                'firebase_uid' => $user->firebase_uid,
-                'email' => $user->email,
-                'name' => $user->name,
+                'id' => $user['id'],
+                'firebase_uid' => $user['firebase_uid'],
+                'email' => $user['email'],
+                'name' => $user['name'],
             ],
             'token' => $token,
             'token_type' => $tokenType

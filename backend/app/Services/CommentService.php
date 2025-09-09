@@ -38,29 +38,29 @@ class CommentService
             throw new Exception('投稿が見つかりません');
         }
 
-        $comments = $this->commentRepository->findByPostId($postId, $perPage, $page);
+        $commentsData = $this->commentRepository->findByPostId($postId, $perPage, $page);
 
-        $commentsData = $comments->map(function ($comment) {
+        $formattedComments = collect($commentsData['data'])->map(function ($comment) {
             return [
-                'id' => $comment->id,
-                'body' => $comment->body,
+                'id' => $comment['id'],
+                'body' => $comment['body'],
                 'user' => [
-                    'id' => $comment->user->id,
-                    'name' => $comment->user->name,
-                    'email' => $comment->user->email,
+                    'id' => $comment['user']['id'],
+                    'name' => $comment['user']['name'],
+                    'email' => $comment['user']['email'],
                 ],
             ];
         });
 
         return [
             'success' => true,
-            'comments' => $commentsData,
+            'comments' => $formattedComments,
             'pagination' => [
-                'current_page' => $comments->currentPage(),
-                'last_page' => $comments->lastPage(),
-                'per_page' => $comments->perPage(),
-                'total' => $comments->total(),
-                'has_more_pages' => $comments->hasMorePages(),
+                'current_page' => $commentsData['current_page'],
+                'last_page' => $commentsData['last_page'],
+                'per_page' => $commentsData['per_page'],
+                'total' => $commentsData['total'],
+                'has_more_pages' => $commentsData['has_more_pages'],
             ]
         ];
     }
@@ -85,22 +85,22 @@ class CommentService
 
         $comment = $this->commentRepository->create([
             'post_id' => $postId,
-            'user_id' => $user->id,
+            'user_id' => $user['id'],
             'body' => $commentData['body'],
         ]);
 
-        $createdComment = $this->commentRepository->findWithUser($comment->id);
+        $createdComment = $this->commentRepository->findWithUser($comment['id']);
 
         return [
             'success' => true,
             'message' => 'コメントを投稿しました',
             'comment' => [
-                'id' => $createdComment->id,
-                'body' => $createdComment->body,
+                'id' => $createdComment['id'],
+                'body' => $createdComment['body'],
                 'user' => [
-                    'id' => $createdComment->user->id,
-                    'name' => $createdComment->user->name,
-                    'email' => $createdComment->user->email,
+                    'id' => $createdComment['user']['id'],
+                    'name' => $createdComment['user']['name'],
+                    'email' => $createdComment['user']['email'],
                 ],
             ]
         ];

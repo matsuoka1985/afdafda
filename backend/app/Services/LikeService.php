@@ -67,21 +67,21 @@ class LikeService
             throw new Exception('投稿が見つかりません');
         }
 
-        $existingLike = $this->likeRepository->findByUserAndPost($user->id, $postId);
+        $existingLike = $this->likeRepository->findByUserAndPost($user['id'], $postId);
         if ($existingLike) {
             throw new Exception('既にいいねしています');
         }
 
         $like = $this->likeRepository->create([
-            'user_id' => $user->id,
+            'user_id' => $user['id'],
             'post_id' => $postId,
         ]);
 
         $likesCount = $this->likeRepository->countByPostId($postId);
 
         Log::info('いいね作成成功', [
-            'like_id' => $like->id,
-            'user_id' => $user->id,
+            'like_id' => $like['id'],
+            'user_id' => $user['id'],
             'post_id' => $postId,
             'likes_count' => $likesCount
         ]);
@@ -129,7 +129,7 @@ class LikeService
             }
         }
 
-        $like = $this->likeRepository->findByUserAndPost($user->id, $postId);
+        $like = $this->likeRepository->findByUserAndPost($user['id'], $postId);
         if (!$like) {
             throw new Exception('いいねが見つかりません');
         }
@@ -138,7 +138,7 @@ class LikeService
         $likesCount = $this->likeRepository->countByPostId($postId);
 
         Log::info('いいね解除成功', [
-            'user_id' => $user->id,
+            'user_id' => $user['id'],
             'post_id' => $postId,
             'likes_count' => $likesCount
         ]);

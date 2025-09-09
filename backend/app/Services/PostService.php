@@ -56,7 +56,7 @@ class PostService
                 }
             }
 
-            return $user ? $user->id : null;
+            return $user ? $user['id'] : null;
         } catch (Exception $e) {
             return null;
         }
@@ -65,25 +65,25 @@ class PostService
     /**
      * 投稿データを整形
      */
-    private function formatPostData($post, ?int $currentUserId): array
+    private function formatPostData(array $post, ?int $currentUserId): array
     {
         $isLiked = false;
         $isOwner = false;
 
         if ($currentUserId) {
-            $isLiked = $post->likes->contains('user_id', $currentUserId);
-            $isOwner = $post->user_id === $currentUserId;
+            $isLiked = collect($post['likes'])->contains('user_id', $currentUserId);
+            $isOwner = $post['user_id'] === $currentUserId;
         }
 
         return [
-            'id' => $post->id,
-            'body' => $post->body,
+            'id' => $post['id'],
+            'body' => $post['body'],
             'user' => [
-                'id' => $post->user->id,
-                'name' => $post->user->name,
-                'email' => $post->user->email,
+                'id' => $post['user']['id'],
+                'name' => $post['user']['name'],
+                'email' => $post['user']['email'],
             ],
-            'likes_count' => $post->likes_count,
+            'likes_count' => $post['likes_count'],
             'is_liked' => $isLiked,
             'is_owner' => $isOwner,
         ];
@@ -95,9 +95,9 @@ class PostService
     public function getPosts(int $page, int $perPage, ?string $jwt): array
     {
         $currentUserId = $this->getCurrentUserId($jwt);
-        $posts = $this->postRepository->getPaginatedWithUserAndLikes($perPage, $page);
+        $paginationData = $this->postRepository->getPaginatedWithUserAndLikes($perPage, $page);
 
-        $postsData = $posts->getCollection()->map(function ($post) use ($currentUserId) {
+        $postsData = collect($paginationData['data'])->map(function ($post) use ($currentUserId) {
             return $this->formatPostData($post, $currentUserId);
         });
 
@@ -106,11 +106,11 @@ class PostService
             'posts' => $postsData,
             'current_user_id' => $currentUserId,
             'pagination' => [
-                'current_page' => $posts->currentPage(),
-                'last_page' => $posts->lastPage(),
-                'per_page' => $posts->perPage(),
-                'total' => $posts->total(),
-                'has_next_page' => $posts->hasMorePages(),
+                'current_page' => $paginationData['current_page'],
+                'last_page' => $paginationData['last_page'],
+                'per_page' => $paginationData['per_page'],
+                'total' => $paginationData['total'],
+                'has_next_page' => $paginationData['current_page'] < $paginationData['last_page'],
             ]
         ];
     }
@@ -129,21 +129,21 @@ class PostService
         }
 
         $post = $this->postRepository->create([
-            'user_id' => $user->id,
+            'user_id' => $user['id'],
             'body' => $postData['body'],
         ]);
 
         Log::info('投稿作成成功', [
-            'post_id' => $post->id,
+            'post_id' => $post['id'],
             'firebase_uid' => $firebaseUid
         ]);
 
-        $createdPost = $this->postRepository->findWithUserAndLikes($post->id);
+        $createdPost = $this->postRepository->findWithUserAndLikes($post['id']);
 
         return [
             'success' => true,
             'message' => '投稿を作成しました',
-            'post' => $this->formatPostData($createdPost, $user->id)
+            'post' => $this->formatPostData($createdPost, $user['id'])
         ];
     }
 
@@ -184,7 +184,7 @@ class PostService
             throw new Exception('投稿が見つかりません');
         }
 
-        if ($post->user_id !== $user->id) {
+        if ($post['user_id'] !== $user['id']) {
             throw new Exception('他のユーザーの投稿は削除できません');
         }
 
@@ -192,7 +192,7 @@ class PostService
 
         Log::info('投稿論理削除成功', [
             'post_id' => $postId,
-            'user_id' => $user->id
+            'user_id' => $user['id']
         ]);
 
         return [
@@ -220,11 +220,11 @@ class PostService
             throw new Exception('投稿が見つかりません');
         }
 
-        if (!$post->trashed()) {
+        if (!$post['deleted_at']) {
             throw new Exception('この投稿は削除されていません');
         }
 
-        if ($post->user_id !== $user->id) {
+        if ($post['user_id'] !== $user['id']) {
             throw new Exception('他のユーザーの投稿は復元できません');
         }
 
@@ -232,7 +232,7 @@ class PostService
 
         Log::info('投稿復元成功', [
             'post_id' => $postId,
-            'user_id' => $user->id
+            'user_id' => $user['id']
         ]);
 
         return [
