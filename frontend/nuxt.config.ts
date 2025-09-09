@@ -11,6 +11,11 @@ export default defineNuxtConfig({
     },
   },
   runtimeConfig: {
+    // GitHub API設定（サーバーサイド専用）
+    GITHUB_TOKEN: process.env.GITHUB_TOKEN,
+    GITHUB_OWNER: process.env.GITHUB_OWNER,
+    GITHUB_REPO: process.env.GITHUB_REPO,
+    
     // サーバーサイド専用の設定（環境に応じて動的切り替え）
     apiBaseUrlServer: (() => {
       // Vercel本番環境では外部APIアクセス

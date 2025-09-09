@@ -10,20 +10,31 @@ on:
     inputs:
       confirm_apply:
         description: 'Type "APPLY" to confirm you want to apply changes'
-        required: true
+        required: false
         type: string
+        default: 'UI_TRIGGERED'
+      trigger_source:
+        description: 'Source of trigger (UI or manual)'
+        required: false
+        type: string
+        default: 'manual'
 
 jobs:
   terraform-apply:
     runs-on: ubuntu-latest
     steps:
       - name: Validate confirmation (manual trigger only)
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.trigger_source == 'manual'
         run: |
           if [ "${{ github.event.inputs.confirm_apply }}" != "APPLY" ]; then
             echo "Error: You must type 'APPLY' to confirm resource creation/update"
             exit 1
           fi
+
+      - name: Log UI trigger
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.trigger_source == 'UI'
+        run: |
+          echo "Terraform Apply triggered from UI"
 
       - name: Checkout code
         uses: actions/checkout@v4

@@ -5,19 +5,31 @@ on:
     inputs:
       confirm_destroy:
         description: 'Type "DESTROY" to confirm you want to destroy all resources'
-        required: true
+        required: false
         type: string
+        default: 'UI_TRIGGERED'
+      trigger_source:
+        description: 'Source of trigger (UI or manual)'
+        required: false
+        type: string
+        default: 'manual'
 
 jobs:
   terraform-destroy:
     runs-on: ubuntu-latest
     steps:
-      - name: Validate confirmation
+      - name: Validate confirmation (manual trigger only)
+        if: github.event.inputs.trigger_source == 'manual'
         run: |
           if [ "${{ github.event.inputs.confirm_destroy }}" != "DESTROY" ]; then
             echo "Error: You must type 'DESTROY' to confirm resource destruction"
             exit 1
           fi
+
+      - name: Log UI trigger
+        if: github.event.inputs.trigger_source == 'UI'
+        run: |
+          echo "Terraform Destroy triggered from UI"
 
       - name: Checkout code
         uses: actions/checkout@v4
