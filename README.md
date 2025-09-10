@@ -6,30 +6,29 @@ SNSアプリ
 
 # 作成した目的
 
-モダンなWeb開発技術スタックの学習と実践を目的として作成されました。
+モダンなWeb開発技術の学習を目的として作成しました。
 
 
-* **フルスタック開発**: Laravel（バックエンド）+ Nuxt.js（フロントエンド）による分離アーキテクチャ
+* Laravel（バックエンド）+ Nuxt.js（フロントエンド）による分離アーキテクチャ
 * **認証システム**: Firebase Authenticationを利用したセキュアな認証機能
-* **コンテナ技術**: Dockerを用いた開発環境の統一とポータビリティの向上
 * **クラウドインフラ**: AWS上でのスケーラブルなコンテナベースアプリケーションの構築
 * **IaC実践**: Terraformによるインフラストラクチャの自動化と管理
 * **CI/CD**: GitHub Actionsを用いた自動テスト・デプロイパイプライン
 * ECS Fargateを用いたサーバーレスコンテナ環境
-* RDS（MySQL）とElastiCache（Redis）による堅牢なデータ層
-* ALBによる高可用性なWebアプリケーション
+* RDS（MySQL）とElastiCache（Redis）によるデータ層
+* ALBによる高可用性
 
 -----
 
 ## アプリケーションURL
 **本番環境**: https://app.smatsuoka.click/
 
-### 重要な注意事項
+### 重要事項
 
 **フロントエンド（Vercel）**: 常時稼働中
 **バックエンド（AWS）**: コスト最適化のため必要時のみ起動
 
-AWS上のバックエンドサービス（ECS Fargate、RDS、ElastiCache等）は従量課金制のため、アプリケーションを閲覧する際のみリソースを立ち上げています。
+AWS上のバックエンドサービス（ECS Fargate、RDS、ElastiCache、Nat Gateway等）は従量課金制のため、アプリケーションを閲覧する際のみリソースを立ち上げています。
 
 ### バックエンド起動手順
 1. **デプロイ管理画面にアクセス**: https://app.smatsuoka.click/terraform
@@ -40,12 +39,14 @@ AWS上のバックエンドサービス（ECS Fargate、RDS、ElastiCache等）�
 
 利用終了後は同じ管理画面から「インフラ削除」を実行し、AWSリソースの課金を停止できます。
 
+-----
+
 
 ## 機能一覧
 
 ###  認証機能
 * **ユーザー登録**: Firebase Authenticationによる新規アカウント作成
-* **ログイン/ログアウト**: メールアドレス・パスワード認証
+* **ログイン/サインアップ**: メールアドレス・パスワード認証
 
 ###  投稿機能
 * **投稿作成**: テキスト投稿の新規作成
@@ -185,4 +186,3 @@ docker compose exec nuxt npm run test
 - パスワード: `password`
 
 ---
-
