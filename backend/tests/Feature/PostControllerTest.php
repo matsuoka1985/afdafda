@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Models\Post;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Kreait\Firebase\Auth;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

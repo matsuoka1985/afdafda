@@ -1,0 +1,53 @@
+Project sns_app {
+  database_type: "MySQL"
+}
+
+/* ─────────── Users（ユーザ）──────────
+   Firebase 認証を利用する前提:
+   - firebase_uid: Firebase の UID（メール/Google 等で共通）を UNIQUE
+   - password: Firebase 依存なら未使用でも一旦残すか NULL 許容で後日削除検討
+*/
+Table users {
+  id             bigint [pk, increment, note:'UNSIGNED']                          // ユーザID
+  firebase_uid   varchar(128)            [unique, not null]                       // Firebase UID
+  name           varchar(255)            [not null]                               // 表示名
+  email          varchar(255)            [unique, not null]                       // メールアドレス
+  email_verified_at datetime                                                       // メール認証日時
+  created_at     datetime                 [not null]                               // 作成日時
+  updated_at     datetime                 [not null]                               // 更新日時
+  deleted_at     datetime                 [not null]                               // 削除日時(論理削除)
+}
+
+/* ─────────── Posts（投稿）────────── */
+Table posts {
+  id             bigint [pk, increment, note:'UNSIGNED']                          // 投稿ID
+  user_id        bigint [ref: > users.id, not null, note:'UNSIGNED']              // 投稿者ユーザID
+  body           text                   [not null]                                // 本文
+  created_at     datetime              [not null]                                 // 作成日時
+  updated_at     datetime              [not null]                                 // 更新日時
+}
+
+/* ─────────── Likes（いいね）──────────
+   user_id + post_id を UNIQUE にし重複いいね防止
+*/
+Table likes {
+  id         bigint [pk, increment, note:'UNSIGNED']                              // いいねID
+  user_id    bigint [ref: > users.id, not null, note:'UNSIGNED']                  // ユーザID
+  post_id    bigint [ref: > posts.id, not null, note:'UNSIGNED']                  // 投稿ID
+  created_at datetime [not null]                                                  // 作成日時
+
+  Indexes {
+    (user_id, post_id) [unique]
+  }
+}
+
+/* ─────────── Comments（コメント）──────────
+*/
+Table comments {
+  id                bigint [pk, increment, note:'UNSIGNED']                       // コメントID
+  post_id           bigint [ref: > posts.id, not null, note:'UNSIGNED']           // 対象投稿ID
+  user_id           bigint [ref: > users.id, not null, note:'UNSIGNED']           // 投稿者ユーザID
+  body              text    [not null]                                            // コメント本文
+  created_at        datetime [not null]                                           // 作成日時
+  updated_at        datetime [not null]                                           // 更新日時
+}

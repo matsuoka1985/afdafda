@@ -9,14 +9,14 @@ SNSアプリ
 モダンなWeb開発技術の学習を目的として作成しました。
 
 
-* Laravel（バックエンド）+ Nuxt.js（フロントエンド）による分離アーキテクチャ
-* **認証システム**: Firebase Authenticationを利用したセキュアな認証機能
+* **Laravel（バックエンド）+ Nuxt.js（フロントエンド）による分離アーキテクチャ**
+* **認証システム**: Firebase Authenticationを利用した認証機能
 * **クラウドインフラ**: AWS上でのスケーラブルなコンテナベースアプリケーションの構築
 * **IaC実践**: Terraformによるインフラストラクチャの自動化と管理
 * **CI/CD**: GitHub Actionsを用いた自動テスト・デプロイパイプライン
-* ECS Fargateを用いたサーバーレスコンテナ環境
-* RDS（MySQL）とElastiCache（Redis）によるデータ層
-* ALBによる高可用性
+* **ECS Fargateを用いたサーバーレスコンテナ環境**
+* **RDS（MySQL）とElastiCache（Redis）によるデータ層**
+* **ALBによる高可用性**
 
 -----
 
@@ -67,22 +67,22 @@ AWS上のバックエンドサービス（ECS Fargate、RDS、ElastiCache、Nat 
 ## 使用技術(実行環境)
 
 ### バックエンド
-* PHP 8.2.28
-* Laravel 11.31
-* MySQL 8.0.37
-* Redis 7.0.11
-* nginx 1.21.1
+* **PHP 8.2.28**
+* **Laravel 11.31**
+* **MySQL 8.0.37**
+* **Redis 7.0.11**
+* **nginx 1.21.1**
 
 ### フロントエンド
-* Nuxt.js 3.17.5
-* Vue.js 3.5.17
-* TypeScript 5.8.3
-* Node.js 22.9.0
+* **Nuxt.js 3.17.5**
+* **Vue.js 3.5.17**
+* **TypeScript 5.8.3**
+* **Node.js 22.9.0**
 
 ### その他
-* Firebase Authentication
-* Vitest (フロントエンドテスト)
-* PHPUnit (バックエンドテスト)
+* **Firebase Authentication**
+* **Vitest** (フロントエンドテスト)
+* **PHPUnit** (バックエンドテスト)
 
 ### インフラストラクチャ (AWS)
 * **Terraform** - インフラ管理
@@ -119,12 +119,12 @@ AWS上のバックエンドサービス（ECS Fargate、RDS、ElastiCache、Nat 
 
 ```bash
 git clone git@github.com:matsuoka1985/afdafda.git
-cd sns-app
+cd afdafda
 ```
 
 ### 2. Firebase 管理SDKの秘密鍵を配置
 
-1. 別途連絡したFirebase Admin SDKの JSON内容を `sns-app/backend/storage/app/firebase/firebase-adminsdk.json` として保存。
+1. 別途連絡したFirebase Admin SDKの JSON内容を `afdafda/backend/storage/app/firebase/firebase-adminsdk.json` として保存。
 
 ### 3. Dockerコンテナの起動
 
@@ -176,13 +176,13 @@ docker compose exec nuxt npm run test
 * **Nuxt.js フロントエンド**: [http://localhost:3000](http://localhost:3000)
 * **Laravel API**: [http://localhost:80](http://localhost:80)
 * **phpMyAdmin (データベース管理GUIツール UI)**: [http://localhost:8080](http://localhost:8080)
-* **Redis**: localhost:6379
+* **Redis**: [localhost:6379](localhost:6379)
 
 ### テスト用アカウント情報
 
 以下の認証データによってテストアカウントでログインできます：
 
-- メールアドレス: `dev@invalid.test`
-- パスワード: `password`
+- **メールアドレス**: `dev@invalid.test`
+- **パスワード**: `password`
 
 ---
