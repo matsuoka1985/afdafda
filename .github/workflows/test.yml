@@ -1,8 +1,9 @@
 name: Test
 
 on:
-  push:
-    branches: [ main ]
+  # pushトリガーは無効化 - Terraform操作はUI経由で実行 (frontend/pages/terraform.vue)
+  # push:
+  #   branches: [ main ]
   pull_request:
     branches: [ main ]
   workflow_run:

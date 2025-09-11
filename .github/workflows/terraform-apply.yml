@@ -1,11 +1,12 @@
 name: Terraform Apply
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'terraform-infra/**'
+  # pushトリガーは無効化 - Terraform操作はUI経由で実行 (frontend/pages/terraform.vue)
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - 'terraform-infra/**'
   workflow_dispatch:
     inputs:
       confirm_apply:
